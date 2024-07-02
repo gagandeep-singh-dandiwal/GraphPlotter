@@ -1,0 +1,129 @@
+﻿<Window x:Class="GraphPlotter.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:GraphPlotter"
+        mc:Ignorable="d"
+        Title="MainWindow" WindowStartupLocation="CenterScreen" WindowState="Maximized" MinHeight="300" MinWidth="300">
+    <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <!--The Graph Area-->
+            <InkCanvas x:Name="inkCanvas" EditingMode="None"
+                    Grid.Row="0" Grid.Column="0"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Background="LightGray"
+                    Width="{Binding GraphWidth}" 
+                    Height="{Binding GraphHeight}"
+                    Strokes="{Binding Strokes,Mode=TwoWay}">
+                <InkCanvas.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform x:Name="scaleTransorm"/>
+                        <TranslateTransform x:Name="translateTransform"/>
+                    </TransformGroup>
+                </InkCanvas.RenderTransform>
+
+                <ItemsControl ItemsSource="{Binding XAxisGridLines,Mode=TwoWay}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Canvas>
+                                <Line X1="{Binding StartXPoint}"
+                                    Y1="{Binding StartYPoint}"
+                                    X2="{Binding EndXPoint}"
+                                    Y2="{Binding EndYPoint}"
+                                    StrokeThickness="{Binding Thickness}"
+                                    Stroke="Gray"/>
+                            </Canvas>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <ItemsControl ItemsSource="{Binding YAxisGridLines,Mode=TwoWay}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Canvas>
+                                <Line X1="{Binding StartXPoint}"
+                                Y1="{Binding StartYPoint}"
+                                X2="{Binding EndXPoint}"
+                                Y2="{Binding EndYPoint}"
+                                StrokeThickness="{Binding Thickness}"
+                                Stroke="Gray"/>
+                            </Canvas>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Polyline Name="polyLine" Points="{Binding Points,Mode=TwoWay}" Stroke="Red" StrokeThickness="1"/>
+            </InkCanvas>
+
+            <!--The Parameters-->
+            <Grid Grid.Row="0" Grid.Column="1" Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="30"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!--Row 0 - Function Type-->
+                <Label Grid.Row="0" Grid.Column="0"
+               Height="30" Width="100"
+               HorizontalContentAlignment="Left" VerticalContentAlignment="Center"
+               Content="Function :"/>
+                <ComboBox Grid.Row="0" Grid.Column="1"
+                  Height="20" Width="100" 
+                  ItemsSource="{Binding TrignometricFunctions,Mode=TwoWay}" 
+                  SelectedValue="{Binding SelectedTrigoFunction,Mode=TwoWay}"/>
+
+                <!--Row 1 - Amplitude-->
+                <Label Grid.Row="1" Grid.Column="0" 
+               Height="30" Width="100"
+               Content="Amplitude(A) :" />
+                <TextBox Grid.Row="1" Grid.Column="1" 
+                 Height="20" Width="100" 
+                 VerticalContentAlignment="Center"
+                 Text="{Binding AmplitudeEnlargingFactorExternal, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                <!--Row 2 - Time Period-->
+                <Label Grid.Row="2" Grid.Column="0" 
+               Height="30" Width="100" 
+               Content="Period(T) :"/>
+                <TextBox Grid.Row="2" Grid.Column="1" 
+                 Height="20" Width="100" 
+                 Text="{Binding TimePeriod, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+
+                <!--Row 3 - Phase Shift-->
+                <Label Grid.Row="3" Grid.Column="0" 
+               Height="30" Width="100" 
+               Content="Phase Shift(Φ) :"/>
+                <TextBox Grid.Row="3" Grid.Column="1" 
+                 Height="20" Width="100" 
+                 Text="{Binding PhaseShift, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+
+                <!--Row 4 - Vertical Shift-->
+                <Label Grid.Row="4" Grid.Column="0" 
+               Height="30" Width="100" 
+               Content="Vertical Shift(D) :"/>
+                <TextBox Grid.Row="4" Grid.Column="1" 
+                 Height="20" Width="100" 
+                 Text="{Binding VerticalShift, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+            </Grid>
+        </Grid>
+    </ScrollViewer>
+</Window>
