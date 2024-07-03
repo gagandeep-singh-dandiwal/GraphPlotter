@@ -4,11 +4,25 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:GraphPlotter"
+        xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+        xmlns:localBehaviour="clr-namespace:GraphPlotter.Common.Behaviours"
         mc:Ignorable="d"
         Title="MainWindow" WindowStartupLocation="CenterScreen" WindowState="Maximized" MinHeight="300" MinWidth="300">
+    <Window.Resources>
+        <Style x:Key="btnZoom" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Cursor" Value="Hand"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible">
         <Grid>
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
@@ -16,32 +30,22 @@
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!--The Graph Area-->
-            <InkCanvas x:Name="inkCanvas" EditingMode="None"
-                    Grid.Row="0" Grid.Column="0"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Top"
-                    Background="LightGray"
-                    Width="{Binding GraphWidth}" 
-                    Height="{Binding GraphHeight}"
-                    Strokes="{Binding Strokes,Mode=TwoWay}">
-                <InkCanvas.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform x:Name="scaleTransorm"/>
-                        <TranslateTransform x:Name="translateTransform"/>
-                    </TransformGroup>
-                </InkCanvas.RenderTransform>
-
+            <InkCanvas Grid.Row="0" Grid.Column="0" EditingMode="None"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Top"
+                        Background="LightGray"
+                        Width="{Binding GraphWidth}" 
+                        Height="{Binding GraphHeight}">
                 <ItemsControl ItemsSource="{Binding XAxisGridLines,Mode=TwoWay}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Canvas>
                                 <Line X1="{Binding StartXPoint}"
-                                    Y1="{Binding StartYPoint}"
-                                    X2="{Binding EndXPoint}"
-                                    Y2="{Binding EndYPoint}"
-                                    StrokeThickness="{Binding Thickness}"
-                                    Stroke="Gray"/>
+                                        Y1="{Binding StartYPoint}"
+                                        X2="{Binding EndXPoint}"
+                                        Y2="{Binding EndYPoint}"
+                                        StrokeThickness="{Binding Thickness}"
+                                        Stroke="Gray"/>
                             </Canvas>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -52,17 +56,53 @@
                         <DataTemplate>
                             <Canvas>
                                 <Line X1="{Binding StartXPoint}"
-                                Y1="{Binding StartYPoint}"
-                                X2="{Binding EndXPoint}"
-                                Y2="{Binding EndYPoint}"
-                                StrokeThickness="{Binding Thickness}"
-                                Stroke="Gray"/>
+                                        Y1="{Binding StartYPoint}"
+                                        X2="{Binding EndXPoint}"
+                                        Y2="{Binding EndYPoint}"
+                                        StrokeThickness="{Binding Thickness}"
+                                        Stroke="Gray"/>
                             </Canvas>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <Polyline Name="polyLine" Points="{Binding Points,Mode=TwoWay}" Stroke="Red" StrokeThickness="1"/>
+                <ItemsControl ItemsSource="{Binding YAxisNumbers,Mode=TwoWay}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Canvas>
+                                <TextBlock Canvas.Left="{Binding X}" Canvas.Top="{Binding Y}" 
+                    Text="{Binding Value}"/>
+                            </Canvas>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <ItemsControl ItemsSource="{Binding XAxisNumbers,Mode=TwoWay}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Canvas>
+                                <TextBlock Canvas.Left="{Binding X}" Canvas.Top="{Binding Y}" 
+                Text="{Binding Value}"/>
+                            </Canvas>
+
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </InkCanvas>
+
+            <!--The Graph Area-->
+            <InkCanvas x:Name="inkCanvas" Grid.Row="0" Grid.Column="0" EditingMode="None" Background="Transparent"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Width="{Binding GraphWidth}" 
+                    Height="{Binding GraphHeight}"
+                    Strokes="{Binding Strokes,Mode=TwoWay}">
+                <InkCanvas.RenderTransform>
+                    <TransformGroup>
+                        <ScaleTransform x:Name="scaleTransform"/>
+                        <TranslateTransform x:Name="translateTransform"/>
+                    </TransformGroup>
+                </InkCanvas.RenderTransform>
             </InkCanvas>
 
             <!--The Parameters-->
@@ -73,8 +113,9 @@
                     <RowDefinition Height="30"/>
                     <RowDefinition Height="30"/>
                     <RowDefinition Height="30"/>
-                    <RowDefinition Height="30"/>
-                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -95,10 +136,14 @@
                 <Label Grid.Row="1" Grid.Column="0" 
                Height="30" Width="100"
                Content="Amplitude(A) :" />
-                <TextBox Grid.Row="1" Grid.Column="1" 
+                <TextBox Name="textBoxAmplitude" Grid.Row="1" Grid.Column="1" 
                  Height="20" Width="100" 
                  VerticalContentAlignment="Center"
-                 Text="{Binding AmplitudeEnlargingFactorExternal, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                 Text="{Binding AmplitudeEnlargingFactorExternal, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                    <i:Interaction.Behaviors>
+                        <localBehaviour:TextInputBehaviour/>
+                    </i:Interaction.Behaviors>
+                </TextBox>
 
                 <!--Row 2 - Time Period-->
                 <Label Grid.Row="2" Grid.Column="0" 
@@ -106,7 +151,11 @@
                Content="Period(T) :"/>
                 <TextBox Grid.Row="2" Grid.Column="1" 
                  Height="20" Width="100" 
-                 Text="{Binding TimePeriod, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"/>
+                 Text="{Binding TimePeriod, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                    <i:Interaction.Behaviors>
+                        <localBehaviour:TextInputBehaviour/>
+                    </i:Interaction.Behaviors>
+                </TextBox>
 
                 <!--Row 3 - Phase Shift-->
                 <Label Grid.Row="3" Grid.Column="0" 
@@ -114,15 +163,62 @@
                Content="Phase Shift(Φ) :"/>
                 <TextBox Grid.Row="3" Grid.Column="1" 
                  Height="20" Width="100" 
-                 Text="{Binding PhaseShift, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                 Text="{Binding PhaseShift, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                    <i:Interaction.Behaviors>
+                        <localBehaviour:TextInputBehaviour/>
+                    </i:Interaction.Behaviors>
+                </TextBox>
 
                 <!--Row 4 - Vertical Shift-->
                 <Label Grid.Row="4" Grid.Column="0" 
-               Height="30" Width="100" 
-               Content="Vertical Shift(D) :"/>
+                Height="30" Width="100" 
+                Content="Vertical Shift(D) :"/>
                 <TextBox Grid.Row="4" Grid.Column="1" 
-                 Height="20" Width="100" 
-                 Text="{Binding VerticalShift, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" />
+                Height="20" Width="100" 
+                Text="{Binding VerticalShift, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                    <i:Interaction.Behaviors>
+                        <localBehaviour:TextInputBehaviour/>
+                    </i:Interaction.Behaviors>
+                </TextBox>
+
+                <!--Row 5 has * height to make sure that the vertical zoom in and zoom out row is at bottom-->
+                
+                <!--Row 6 - Vertical Zoom in button-->
+                <Button Grid.Row="6" Grid.Column="0" Width="20"
+                             VerticalAlignment="Top" HorizontalAlignment="Left" 
+                        Style="{StaticResource btnZoom}"
+                        Command="{Binding VerticalZoomInCommand}"
+                        Content="+"/>
+
+                <!--Row 6 - Vertical Zoom out button-->
+                <Button Grid.Row="7" Grid.Column="0" Width="20"
+                        VerticalAlignment="Top" HorizontalAlignment="Left" 
+                        Style="{StaticResource btnZoom}"
+                        Command="{Binding VerticalZoomOutCommand}"
+                        Content="-"/>
+            </Grid>
+
+            <!--Horizontal zoom row-->
+            <Grid Grid.Row="2" Grid.Column="0" Margin="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Row="0" Grid.Column="2"
+                        Width="20"
+                        Style="{StaticResource btnZoom}"
+                        Command="{Binding HorizontalZoomInCommand}"
+                        Content="+"/>
+                <Button Grid.Row="0" Grid.Column="1"
+                        Width="20" 
+                        Style="{StaticResource btnZoom}"
+                        Command="{Binding HorizontalZoomOutCommand}"
+                        Content="-"/>
             </Grid>
         </Grid>
     </ScrollViewer>

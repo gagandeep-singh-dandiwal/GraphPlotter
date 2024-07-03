@@ -25,7 +25,7 @@ namespace GraphPlotter.Services
         /// <param name="graphWidth">The width of the graph</param>
         /// <param name="centerX">The x coordinate of center</param>
         /// <param name="centerY">The y coordinate of center</param>
-        /// <param name="internalXAxisEnlargingFactorterY">The internal x axis sclaing factor</param>
+        /// <param name="internalXAxisEnlargingFactorter">The internal x axis sclaing factor</param>
         /// <param name="amplitudeEnlargingFactorInternal">The internal amplitude enlarging factor</param>
         /// <param name="amplitudeEnlargingFactorExternal">The amplitude A of the wave</param>
         /// <param name="timePeriod">The time period of the wave</param>
@@ -34,22 +34,22 @@ namespace GraphPlotter.Services
         /// <param name="strokes">The colleciton of strokes which make up the wave</param>
         /// <returns>The collection of strokes which make up the sine wave</returns>
         public StrokeCollection PlotSine(double graphWidth,
-            double centerX, double centerY,
-            double internalXAxisEnlargingFactorterY, double amplitudeEnlargingFactorInternal,
+            double centerX, double centerY, double XAxisZoomFactor, double YAxisZoomFactor,
+            double internalXAxisEnlargingFactorter, double amplitudeEnlargingFactorInternal,
             double amplitudeEnlargingFactorExternal, string timePeriod, string phaseShift,
             string verticalShift, StrokeCollection strokes)
         {
             StylusPointCollection stylusPointsCollection = new StylusPointCollection();
-
+            double graphheight = 600;
             for (double i = 0; i < graphWidth; i = i + 0.1)
             {
                 double omega = 2 / Convert.ToDouble(timePeriod);
-                double X = (i - centerX) / internalXAxisEnlargingFactorterY;
+                double X = (i - centerX) / (internalXAxisEnlargingFactorter*XAxisZoomFactor);
                 double Phi = Convert.ToDouble(phaseShift) * (Math.PI);
                 double sineValue = (amplitudeEnlargingFactorInternal *
-                    amplitudeEnlargingFactorExternal *
+                    amplitudeEnlargingFactorExternal *YAxisZoomFactor*
                     Math.Sin((omega * X) - Phi));
-                double D = Convert.ToDouble(verticalShift) * amplitudeEnlargingFactorInternal;
+                double D = Convert.ToDouble(verticalShift) * amplitudeEnlargingFactorInternal*YAxisZoomFactor;
                 StylusPoint pointSin = new StylusPoint
                     (i, centerY - sineValue - D);
                 stylusPointsCollection.Add(pointSin);

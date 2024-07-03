@@ -7,10 +7,14 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Ink;
 using System.Windows.Input;
 using System.Windows.Media;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace GraphPlotter.Screens.ViewModels
 {
@@ -22,8 +26,13 @@ namespace GraphPlotter.Screens.ViewModels
         {
             _plotGridLinesService = plotGridLinesService;
             _plotTrignometricFunctionsService = plotTrignometricFunctionsService;
+            HorizontalZoomInCommand = new RelayCommand(ExecuteHorizontalZoomIn, CanExecuteHorizontalZoomIn);
+            HorizontalZoomOutCommand = new RelayCommand(ExecuteHorizontalZoomOut, CanExecuteHorizontalZoomOut);
+            VerticalZoomInCommand = new RelayCommand(ExecuteVerticalZoomIn, CanExecuteVerticalZoomIn);
+            VerticalZoomOutCommand = new RelayCommand(ExecuteVerticalZoomOut, CanExecuteVerticalZoomOut);
             InitializeGraph();
         }
+
         #endregion
 
         #region Constant Variables
@@ -141,11 +150,11 @@ namespace GraphPlotter.Screens.ViewModels
         /// <summary>
         /// private field for the Property AmplitudeEnlargingFactorExternal
         /// </summary>
-        private int amplitudeEnlargingFactorExternal = OnLoadAmplitudeEnlargingFactorExternal;
+        private string amplitudeEnlargingFactorExternal = Properties.Settings.Default.Amplitude;
         /// <summary>
         /// This signifies the value of A i.e. amplitude in the formula A*sin( (2*pi/T) x - phi)+D
         /// </summary>
-        public int AmplitudeEnlargingFactorExternal
+        public string AmplitudeEnlargingFactorExternal
         {
             get
             {
@@ -155,6 +164,7 @@ namespace GraphPlotter.Screens.ViewModels
             {
                 amplitudeEnlargingFactorExternal = value;
                 PlotTrignometricFunctions(SelectedTrigoFunction);
+                Properties.Settings.Default.Amplitude = value;
                 OnPropertyChanged();
             }
         }
@@ -162,7 +172,7 @@ namespace GraphPlotter.Screens.ViewModels
         /// <summary>
         /// private field for the Property TimePeriod
         /// </summary>
-        private string timePeriod = OnLoadTimePeriodValue.ToString();
+        private string timePeriod = Properties.Settings.Default.TimePeriod.ToString();
         /// <summary>
         /// This signifies the value of T i.e. time period(seconds) in the formula A*sin( (2*pi/T) x - phi)+D
         /// </summary>
@@ -176,6 +186,7 @@ namespace GraphPlotter.Screens.ViewModels
             {
                 timePeriod = value;
                 PlotTrignometricFunctions(SelectedTrigoFunction);
+                Properties.Settings.Default.TimePeriod = Convert.ToDouble(value);
                 OnPropertyChanged();
             }
         }
@@ -183,7 +194,7 @@ namespace GraphPlotter.Screens.ViewModels
         /// <summary>
         /// private field for the Property PhaseShift
         /// </summary>
-        private string phaseShift = OnLoadPhaseShift.ToString();
+        private string phaseShift = Properties.Settings.Default.PhaseShift.ToString();
         /// <summary>
         /// This signifies the value of phi i.e. the phase shift in the formula A*sin( (2*pi/T) x - phi)+D
         /// </summary>
@@ -197,6 +208,7 @@ namespace GraphPlotter.Screens.ViewModels
             {
                 phaseShift = value;
                 PlotTrignometricFunctions(SelectedTrigoFunction);
+                Properties.Settings.Default.PhaseShift = Convert.ToDouble(value);
                 OnPropertyChanged();
             }
         }
@@ -204,7 +216,7 @@ namespace GraphPlotter.Screens.ViewModels
         /// <summary>
         /// private field for the Property VerticalShift
         /// </summary>
-        private string verticalShift = OnLoadVerticalShift.ToString();
+        private string verticalShift = Properties.Settings.Default.VerticalShift.ToString();
         /// <summary>
         /// This signifies the value of D i.e. vertical shift in the formula A*sin( (2*pi/T) x - phi)+D
         /// </summary>
@@ -215,6 +227,7 @@ namespace GraphPlotter.Screens.ViewModels
             {
                 verticalShift = value;
                 PlotTrignometricFunctions(SelectedTrigoFunction);
+                Properties.Settings.Default.VerticalShift = Convert.ToDouble(value);
                 OnPropertyChanged();
             }
         }
@@ -262,6 +275,40 @@ namespace GraphPlotter.Screens.ViewModels
         }
 
         /// <summary>
+        /// The private variable for XAxisNumbers
+        /// </summary>
+        private ObservableCollection<Number> xAxisNumbers = new ObservableCollection<Number>();
+        /// <summary>
+        /// The list of numbers on the X-Axis
+        /// </summary>
+        public ObservableCollection<Number> XAxisNumbers
+        {
+            get { return xAxisNumbers; }
+            set
+            {
+                xAxisNumbers = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// The private variable for YAxisNumbers
+        /// </summary>
+        private ObservableCollection<Number> yAxisNumbers = new ObservableCollection<Number>();
+        /// <summary>
+        /// The list of numbers on the Y-Axis
+        /// </summary>
+        public ObservableCollection<Number> YAxisNumbers
+        {
+            get { return yAxisNumbers; }
+            set
+            {
+                yAxisNumbers = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
         /// The width of the graph i.e. is the InkCanvas.
         /// It is binded to the Widht of InkCanvas in the View.
         /// </summary>
@@ -298,9 +345,31 @@ namespace GraphPlotter.Screens.ViewModels
             set
             {
                 selectedTrigoFunction = value;
+                Properties.Settings.Default.FunctionType = value;
                 PlotTrignometricFunctions(value);
             }
         }
+
+        /// <summary>
+        /// The zoom factor along the y axis
+        /// </summary>
+        public double YAxisZoomFactor { get; set; } = 1;
+
+        /// <summary>
+        /// The zoom factor along the x axis.
+        /// </summary>
+        public double XAxisZoomFactor { get; set; } = 1;
+
+        /// <summary>
+        /// The command which is called when + for horizontal zoom is pressed.
+        /// </summary>
+        public RelayCommand HorizontalZoomInCommand { get;set; }
+        public RelayCommand HorizontalZoomOutCommand { get; set; }
+        public RelayCommand VerticalZoomInCommand { get; set; }
+        public RelayCommand VerticalZoomOutCommand { get; set; }
+
+
+
         #endregion
 
         #region Methods
@@ -311,24 +380,114 @@ namespace GraphPlotter.Screens.ViewModels
         /// </summary>
         private void InitializeGraph()
         {
-            GraphWidth = Math.PI * GraphWidthMultiple;
-            GraphHeight = GraphHeightConstant;
-            _centerX = GraphWidth / NumberTwo;
-            _centerY = GraphHeight / NumberTwo;
-            TrignometricFunctions = new ObservableCollection<string>() 
-            { Sin, Cos, Tan, Cosec, Sec, Cot, SinC };
+            try
+            {
+                GraphWidth = Math.PI * GraphWidthMultiple;
+                GraphHeight = GraphHeightConstant;
+                _centerX = GraphWidth / NumberTwo;
+                _centerY = GraphHeight / NumberTwo;
+                TrignometricFunctions = new ObservableCollection<string>()
+                { Sin, Cos, Tan, Cosec, Sec, Cot, SinC };
 
-            //plot Y Axis Grid Lines
-            _plotGridLinesService.AddYaxisGridLines(GraphWidth,GraphHeight,
-            _centerY, AmplitudeEnlargingFactorInternal,
-            InternalXAxisScalingFactor,
-            YAxisGridLines);
+                //plot Y Axis Grid Lines
+                _plotGridLinesService.AddYaxisGridLines(GraphWidth, GraphHeight,
+                _centerY, AmplitudeEnlargingFactorInternal,
+                InternalXAxisScalingFactor,
+                YAxisGridLines);
 
-            //plot X Axis Grid lines
-            _plotGridLinesService.AddXaxisGridLines(GraphWidth, GraphHeight,
-            _centerX,
-            InternalXAxisScalingFactor,
-            XAxisGridLines);
+                //plot X Axis Grid lines
+                _plotGridLinesService.AddXaxisGridLines(GraphWidth, GraphHeight,
+                _centerX,
+                InternalXAxisScalingFactor,
+                XAxisGridLines);
+
+                SelectedTrigoFunction = Properties.Settings.Default.FunctionType;
+
+                AddXAxisNumber();
+                AddYAxisNumber();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            
+        }
+
+        public void AddXAxisNumber()
+        {
+            XAxisNumbers = new ObservableCollection<Number>();
+            int numberOfLines = Convert.ToInt32(GraphWidth / (Math.PI * InternalXAxisScalingFactor) - 1);
+            double start = -GraphWidth / (2*Math.PI * InternalXAxisScalingFactor*XAxisZoomFactor);
+            double end = -start;
+            //+ve x axis numbers
+            for (int i = 0; i < numberOfLines/2+1; i++)
+            {
+                Number number = new Number();
+
+                if (i == 0)
+                {
+                    number.X = _centerX;
+                    number.Y = _centerY;
+                    number.Value = "0";
+                }
+                else
+                {
+                    number.X = _centerX + (i * Math.PI * InternalXAxisScalingFactor);
+                    number.Y = _centerY; 
+                    if (i / XAxisZoomFactor == 1)
+                    {
+                        number.Value = "π";
+                    }
+                    else
+                    {
+                        number.Value = Math.Round((i / XAxisZoomFactor), 4).ToString() + "π";
+                    }
+                }
+                XAxisNumbers.Add(number);
+            }
+            //-ve x axis numbers
+            for (int i = -1; i > -numberOfLines / 2 - 1; i--)
+            {
+                Number number = new Number();
+
+                number.X = _centerX + (i * Math.PI * InternalXAxisScalingFactor);
+                number.Y = _centerY;
+                if (i / XAxisZoomFactor == -1)
+                {
+                    number.Value = "-π";
+                }
+                else
+                {
+                    number.Value = Math.Round((i / XAxisZoomFactor), 4).ToString() + "π";
+                }
+
+                XAxisNumbers.Add(number);
+            }
+            OnPropertyChanged(nameof(XAxisNumbers));
+        }
+
+        public void AddYAxisNumber()
+        {
+            YAxisNumbers = new ObservableCollection<Number>();
+            double start = -GraphHeight / (2*AmplitudeEnlargingFactorInternal * YAxisZoomFactor);
+            double end = -start;
+            for (double i = start; i < end; i = i + 1 / YAxisZoomFactor)
+            {
+                Number number = new Number();
+
+                 if (i == 0)
+                {
+                    continue;
+                }
+                else
+                {
+                    number.X = _centerX + 4;
+                    number.Y = _centerY - (i  * AmplitudeEnlargingFactorInternal * YAxisZoomFactor);
+                    number.Value = i.ToString();
+                }
+                YAxisNumbers.Add(number);
+            }
+            OnPropertyChanged(nameof(XAxisNumbers));
         }
         public bool CanExecutePlotCommand(object parameter)
         {
@@ -355,53 +514,113 @@ namespace GraphPlotter.Screens.ViewModels
         /// <param name="function">The selected trigonometric function</param>
         public void PlotTrignometricFunctions(string function)
         {
-            Strokes = new StrokeCollection();
-            StylusPointCollection stylusPointsCollection = new StylusPointCollection();
-
-            if (AmplitudeEnlargingFactorExternal != null &&
-                !string.IsNullOrEmpty(TimePeriod) && Convert.ToDouble(TimePeriod) != 0 &&
-                !string.IsNullOrEmpty(PhaseShift) &&
-                !string.IsNullOrEmpty(VerticalShift))
+            try
             {
-                //if sine is selected call the PlotSine service 
-                if (function.ToString().ToLower().Equals(Sin))
-                {
-                    _plotTrignometricFunctionsService.PlotSine(GraphWidth, _centerX,_centerY,InternalXAxisScalingFactor,
-                        AmplitudeEnlargingFactorInternal,AmplitudeEnlargingFactorExternal,TimePeriod,PhaseShift,VerticalShift,Strokes);
+                Strokes = new StrokeCollection();
+                StylusPointCollection stylusPointsCollection = new StylusPointCollection();
 
-                }
-                else if (function.ToString().ToLower().Equals(Cos))
+                if (!string.IsNullOrEmpty(function) &&
+                    Convert.ToDouble(AmplitudeEnlargingFactorExternal) != null &&
+                    !string.IsNullOrEmpty(TimePeriod) && Convert.ToDouble(TimePeriod) != 0 &&
+                    !string.IsNullOrEmpty(PhaseShift) &&
+                    !string.IsNullOrEmpty(VerticalShift))
                 {
-                    _plotTrignometricFunctionsService.PlotCos(GraphWidth, _centerX, _centerY, InternalXAxisScalingFactor,
-                        AmplitudeEnlargingFactorInternal, AmplitudeEnlargingFactorExternal, TimePeriod, PhaseShift, VerticalShift,Strokes);
+                    //if sine is selected call the PlotSine service 
+                    if (function.ToString().ToLower().Equals(Sin))
+                    {
+                        _plotTrignometricFunctionsService.PlotSine(GraphWidth, _centerX, _centerY,XAxisZoomFactor,YAxisZoomFactor, InternalXAxisScalingFactor,
+                            AmplitudeEnlargingFactorInternal, Convert.ToDouble(AmplitudeEnlargingFactorExternal), TimePeriod, PhaseShift, VerticalShift, Strokes);
+
+                    }
+                    else if (function.ToString().ToLower().Equals(Cos))
+                    {
+                        _plotTrignometricFunctionsService.PlotCos(GraphWidth, _centerX, _centerY, InternalXAxisScalingFactor,
+                            AmplitudeEnlargingFactorInternal, Convert.ToDouble(AmplitudeEnlargingFactorExternal), TimePeriod, PhaseShift, VerticalShift, Strokes);
+                    }
+                    else if (function.ToString().ToLower().Equals(Tan))
+                    {
+                        _plotTrignometricFunctionsService.PlotTan(GraphWidth, _centerX, _centerY, InternalXAxisScalingFactor,
+                            AmplitudeEnlargingFactorInternal, Convert.ToDouble(AmplitudeEnlargingFactorExternal), TimePeriod, PhaseShift, VerticalShift, Strokes);
+                    }
+                    else if (function.ToString().ToLower().Equals(Cosec))
+                    {
+                        _plotTrignometricFunctionsService.PlotCosec(GraphWidth, _centerX, _centerY, InternalXAxisScalingFactor,
+                            AmplitudeEnlargingFactorInternal, Convert.ToDouble(AmplitudeEnlargingFactorExternal), TimePeriod, PhaseShift, VerticalShift, Strokes);
+                    }
+                    else if (function.ToString().ToLower().Equals(Sec))
+                    {
+                        _plotTrignometricFunctionsService.PlotSec(GraphWidth, _centerX, _centerY, InternalXAxisScalingFactor,
+                            AmplitudeEnlargingFactorInternal, Convert.ToDouble(AmplitudeEnlargingFactorExternal), TimePeriod, PhaseShift, VerticalShift, Strokes);
+                    }
+                    else if (function.ToString().ToLower().Equals(Cot))
+                    {
+                        _plotTrignometricFunctionsService.PlotCot(GraphWidth, _centerX, _centerY, InternalXAxisScalingFactor,
+                            AmplitudeEnlargingFactorInternal, Convert.ToDouble(AmplitudeEnlargingFactorExternal), TimePeriod, PhaseShift, VerticalShift, Strokes);
+                    }
+                    else if (function.ToString().ToLower().Equals(SinC.ToLower()))
+                    {
+                        _plotTrignometricFunctionsService.PlotSinC(GraphWidth, _centerX, _centerY, InternalXAxisScalingFactor,
+                            AmplitudeEnlargingFactorInternal, Convert.ToDouble(AmplitudeEnlargingFactorExternal), TimePeriod, PhaseShift, VerticalShift, Strokes);
+                    }
                 }
-                else if (function.ToString().ToLower().Equals(Tan))
-                {
-                    _plotTrignometricFunctionsService.PlotTan(GraphWidth, _centerX, _centerY, InternalXAxisScalingFactor,
-                        AmplitudeEnlargingFactorInternal, AmplitudeEnlargingFactorExternal, TimePeriod, PhaseShift, VerticalShift,Strokes);
-                }
-                else if (function.ToString().ToLower().Equals(Cosec))
-                {
-                    _plotTrignometricFunctionsService.PlotCosec(GraphWidth, _centerX, _centerY, InternalXAxisScalingFactor,
-                        AmplitudeEnlargingFactorInternal, AmplitudeEnlargingFactorExternal, TimePeriod, PhaseShift, VerticalShift, Strokes);
-                }
-                else if (function.ToString().ToLower().Equals(Sec))
-                {
-                    _plotTrignometricFunctionsService.PlotSec(GraphWidth, _centerX, _centerY, InternalXAxisScalingFactor,
-                        AmplitudeEnlargingFactorInternal, AmplitudeEnlargingFactorExternal, TimePeriod, PhaseShift, VerticalShift, Strokes);
-                }
-                else if (function.ToString().ToLower().Equals(Cot))
-                {
-                    _plotTrignometricFunctionsService.PlotCot(GraphWidth, _centerX, _centerY, InternalXAxisScalingFactor,
-                        AmplitudeEnlargingFactorInternal, AmplitudeEnlargingFactorExternal, TimePeriod, PhaseShift, VerticalShift, Strokes);
-                }
-                else if (function.ToString().ToLower().Equals(SinC.ToLower()))
-                {
-                    _plotTrignometricFunctionsService.PlotSinC(GraphWidth, _centerX, _centerY, InternalXAxisScalingFactor,
-                        AmplitudeEnlargingFactorInternal, AmplitudeEnlargingFactorExternal, TimePeriod, PhaseShift, VerticalShift, Strokes);
-                }
+                OnPropertyChanged(nameof(Strokes));
             }
-            OnPropertyChanged(nameof(Strokes));
+            catch (Exception ex)
+            {
+                Strokes = new StrokeCollection();
+                OnPropertyChanged(nameof(Strokes));
+                MessageBox.Show("Failed to draw the graph. " + ex.Message);
+            }
+        }
+
+        private bool CanExecuteHorizontalZoomIn(object obj)
+        {
+            return true;
+        }
+
+        private void ExecuteHorizontalZoomIn(object obj)
+        {
+            XAxisZoomFactor = XAxisZoomFactor * 2;
+            AddXAxisNumber();
+            PlotTrignometricFunctions(SelectedTrigoFunction);
+        }
+
+
+        private bool CanExecuteHorizontalZoomOut(object obj)
+        {
+            return true;
+        }
+
+        private void ExecuteHorizontalZoomOut(object obj)
+        {
+            XAxisZoomFactor = XAxisZoomFactor / 2;
+            AddXAxisNumber();
+            PlotTrignometricFunctions(SelectedTrigoFunction);
+        }
+
+        private bool CanExecuteVerticalZoomIn(object obj)
+        {
+            return true;
+        }
+
+        private void ExecuteVerticalZoomIn(object obj)
+        {
+            YAxisZoomFactor = YAxisZoomFactor * 2;
+            AddYAxisNumber();
+            PlotTrignometricFunctions(SelectedTrigoFunction);
+        }
+
+
+        private bool CanExecuteVerticalZoomOut(object obj)
+        {
+            return true;
+        }
+
+        private void ExecuteVerticalZoomOut(object obj)
+        {
+            YAxisZoomFactor = YAxisZoomFactor / 2;
+            AddYAxisNumber();
+            PlotTrignometricFunctions(SelectedTrigoFunction);
         }
         #endregion
 

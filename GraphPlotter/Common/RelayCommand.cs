@@ -7,7 +7,7 @@ namespace GraphPlotter.Common
     /// This class implements the ICommand interface which helping in binding with 
     /// commands in the views.
     /// </summary>
-    internal class RelayCommand : ICommand
+    public class RelayCommand : ICommand
     {
         #region Constructor
         /// <summary>

@@ -73,11 +73,9 @@ namespace GraphPlotter.Services
             for (double i = 0; i < graphWidth / 2; i = i + Math.PI / 4)
             {
                 GridLine numberIndicatorLine = new GridLine();
-                //i in the below line has been multiplied by 10 , because the enlarging factor is 10
-                //That means the actual 1 on x-axis is not 1 but 10
-                numberIndicatorLine.StartXPoint = internalXAxisEnlargingFactor * i + (graphWidth / 2);
+                numberIndicatorLine.StartXPoint = internalXAxisEnlargingFactor * i + centerX;
                 numberIndicatorLine.StartYPoint = 0;
-                numberIndicatorLine.EndXPoint = internalXAxisEnlargingFactor * i + (graphWidth / 2);
+                numberIndicatorLine.EndXPoint = internalXAxisEnlargingFactor * i + centerX;
                 numberIndicatorLine.EndYPoint = graphHeight;
 
                 //the Y axis has to be thickest
