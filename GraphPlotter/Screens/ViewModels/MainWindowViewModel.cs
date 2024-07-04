@@ -136,12 +136,15 @@ namespace GraphPlotter.Screens.ViewModels
         /// <summary>
         /// The X=0 coordinate
         /// </summary>
-        private double _centerX;
+        private double _defaultCenterXWPF;
 
         /// <summary>
         /// The Y=0 coordinate
         /// </summary>
-        private double _centerY;
+        private double _defaultCenterYWPF;
+
+        private double _actualCenterXWPF;
+        private double _actualCenterYWPF;
 
         /// <summary>
         /// The field for accessing the PlotGridLineService. 
@@ -424,6 +427,13 @@ namespace GraphPlotter.Screens.ViewModels
             set
             {
                 _xOffset = value;
+                _actualCenterXWPF = _defaultCenterXWPF - Convert.ToDouble(value)*Math.PI*InternalXAxisScalingFactor;
+                PlotTrignometricFunctions(SelectedTrigoFunction);
+                //Plot the numbers on the X Axis
+                _plotGridLineNumbersService.AddXAxisNumber(_actualCenterXWPF, _actualCenterYWPF,
+                GraphWidth, GraphHeight, XAxisZoomFactor,
+                InternalXAxisScalingFactor, ref xAxisNumbers);
+                OnPropertyChanged(nameof(XAxisNumbers));
                 OnPropertyChanged();
             }
         }
@@ -433,7 +443,18 @@ namespace GraphPlotter.Screens.ViewModels
         public string YOffset
         {
             get { return _yOffset; }
-            set { _yOffset = value;OnPropertyChanged(); }
+            set { 
+                    _yOffset = value;
+                    _actualCenterYWPF = Convert.ToDouble(value)*AmplitudeEnlargingFactorInternal + _defaultCenterYWPF;
+                    //Plot the numbers on the Y Axis
+                    _plotGridLineNumbersService.AddYAxisNumber(_actualCenterXWPF, _actualCenterYWPF,
+                    GraphWidth, GraphHeight, XAxisZoomFactor, YAxisZoomFactor,
+                    AmplitudeEnlargingFactorInternal, InternalXAxisScalingFactor, ref yAxisNumbers);
+                    OnPropertyChanged(nameof(YAxisNumbers));
+                    PlotTrignometricFunctions(SelectedTrigoFunction);
+                    OnPropertyChanged(nameof(Strokes));
+                    OnPropertyChanged(); 
+                }
         }
 
 
@@ -451,33 +472,35 @@ namespace GraphPlotter.Screens.ViewModels
             {
                 GraphWidth = Math.PI * GraphWidthMultiple;
                 GraphHeight = GraphHeightConstant;
-                _centerX = GraphWidth / NumberTwo;
-                _centerY = GraphHeight / NumberTwo;
+                _defaultCenterXWPF = GraphWidth / NumberTwo;
+                _defaultCenterYWPF = GraphHeight / NumberTwo;
+                _actualCenterXWPF = Convert.ToDouble(XOffset) + _defaultCenterXWPF;
+                _actualCenterYWPF = Convert.ToDouble(YOffset) + _defaultCenterYWPF;
                 TrignometricFunctions = new ObservableCollection<string>()
                 { Sin, Cos, Tan, Cosec, Sec, Cot, SinC };
 
                 //plot Y Axis Grid Lines
                 _plotGridLinesService.AddYaxisGridLines(GraphWidth, GraphHeight,
-                _centerY, AmplitudeEnlargingFactorInternal,
+                _defaultCenterYWPF, AmplitudeEnlargingFactorInternal,
                 InternalXAxisScalingFactor,
                 YAxisGridLines);
 
                 //plot X Axis Grid lines
                 _plotGridLinesService.AddXaxisGridLines(GraphWidth, GraphHeight,
-                _centerX,
+                _defaultCenterXWPF,
                 InternalXAxisScalingFactor,
                 XAxisGridLines);
 
                 SelectedTrigoFunction = Properties.Settings.Default.FunctionType;
 
                 //Plot the numbers on the X Axis
-                _plotGridLineNumbersService.AddXAxisNumber(_centerX,_centerY,
+                _plotGridLineNumbersService.AddXAxisNumber(_defaultCenterXWPF,_defaultCenterYWPF,
                 GraphWidth, GraphHeight,  XAxisZoomFactor,
                 InternalXAxisScalingFactor,ref xAxisNumbers);
                 OnPropertyChanged(nameof(XAxisNumbers));
 
                 //Plot the numbers on the Y Axis
-                _plotGridLineNumbersService.AddYAxisNumber(_centerX,_centerY,
+                _plotGridLineNumbersService.AddYAxisNumber(_actualCenterXWPF,_actualCenterYWPF,
                 GraphWidth, GraphHeight, XAxisZoomFactor, YAxisZoomFactor,
                 AmplitudeEnlargingFactorInternal, InternalXAxisScalingFactor,ref yAxisNumbers);
                 OnPropertyChanged(nameof(YAxisNumbers));
@@ -510,38 +533,43 @@ namespace GraphPlotter.Screens.ViewModels
                     //if sine is selected call the PlotSine service 
                     if (function.ToString().ToLower().Equals(Sin))
                     {
-                        _plotTrignometricFunctionsService.PlotSine(GraphWidth, _centerX, _centerY,XAxisZoomFactor,YAxisZoomFactor, InternalXAxisScalingFactor,
-                            AmplitudeEnlargingFactorInternal, Convert.ToDouble(AmplitudeEnlargingFactorExternal), TimePeriod, PhaseShift, VerticalShift, Strokes);
+                        
+                        _plotTrignometricFunctionsService.PlotSine(GraphWidth, _actualCenterXWPF, _actualCenterYWPF,
+                            Convert.ToDouble(XOffset),Convert.ToDouble(YOffset),
+                            XAxisZoomFactor,YAxisZoomFactor, 
+                            InternalXAxisScalingFactor,
+                            AmplitudeEnlargingFactorInternal,Convert.ToDouble(AmplitudeEnlargingFactorExternal),
+                            TimePeriod, PhaseShift, VerticalShift, Strokes);
 
                     }
                     else if (function.ToString().ToLower().Equals(Cos))
                     {
-                        _plotTrignometricFunctionsService.PlotCos(GraphWidth, _centerX, _centerY, InternalXAxisScalingFactor,
+                        _plotTrignometricFunctionsService.PlotCos(GraphWidth, _defaultCenterXWPF, _defaultCenterYWPF, InternalXAxisScalingFactor,
                             AmplitudeEnlargingFactorInternal, Convert.ToDouble(AmplitudeEnlargingFactorExternal), TimePeriod, PhaseShift, VerticalShift, Strokes);
                     }
                     else if (function.ToString().ToLower().Equals(Tan))
                     {
-                        _plotTrignometricFunctionsService.PlotTan(GraphWidth, _centerX, _centerY, InternalXAxisScalingFactor,
+                        _plotTrignometricFunctionsService.PlotTan(GraphWidth, _defaultCenterXWPF, _defaultCenterYWPF, InternalXAxisScalingFactor,
                             AmplitudeEnlargingFactorInternal, Convert.ToDouble(AmplitudeEnlargingFactorExternal), TimePeriod, PhaseShift, VerticalShift, Strokes);
                     }
                     else if (function.ToString().ToLower().Equals(Cosec))
                     {
-                        _plotTrignometricFunctionsService.PlotCosec(GraphWidth, _centerX, _centerY, InternalXAxisScalingFactor,
+                        _plotTrignometricFunctionsService.PlotCosec(GraphWidth, _defaultCenterXWPF, _defaultCenterYWPF, InternalXAxisScalingFactor,
                             AmplitudeEnlargingFactorInternal, Convert.ToDouble(AmplitudeEnlargingFactorExternal), TimePeriod, PhaseShift, VerticalShift, Strokes);
                     }
                     else if (function.ToString().ToLower().Equals(Sec))
                     {
-                        _plotTrignometricFunctionsService.PlotSec(GraphWidth, _centerX, _centerY, InternalXAxisScalingFactor,
+                        _plotTrignometricFunctionsService.PlotSec(GraphWidth, _defaultCenterXWPF, _defaultCenterYWPF, InternalXAxisScalingFactor,
                             AmplitudeEnlargingFactorInternal, Convert.ToDouble(AmplitudeEnlargingFactorExternal), TimePeriod, PhaseShift, VerticalShift, Strokes);
                     }
                     else if (function.ToString().ToLower().Equals(Cot))
                     {
-                        _plotTrignometricFunctionsService.PlotCot(GraphWidth, _centerX, _centerY, InternalXAxisScalingFactor,
+                        _plotTrignometricFunctionsService.PlotCot(GraphWidth, _defaultCenterXWPF, _defaultCenterYWPF, InternalXAxisScalingFactor,
                             AmplitudeEnlargingFactorInternal, Convert.ToDouble(AmplitudeEnlargingFactorExternal), TimePeriod, PhaseShift, VerticalShift, Strokes);
                     }
                     else if (function.ToString().ToLower().Equals(SinC.ToLower()))
                     {
-                        _plotTrignometricFunctionsService.PlotSinC(GraphWidth, _centerX, _centerY, InternalXAxisScalingFactor,
+                        _plotTrignometricFunctionsService.PlotSinC(GraphWidth, _defaultCenterXWPF, _defaultCenterYWPF, InternalXAxisScalingFactor,
                             AmplitudeEnlargingFactorInternal, Convert.ToDouble(AmplitudeEnlargingFactorExternal), TimePeriod, PhaseShift, VerticalShift, Strokes);
                     }
                 }
@@ -572,7 +600,7 @@ namespace GraphPlotter.Screens.ViewModels
         private void ExecuteHorizontalZoomIn(object obj)
         {
             XAxisZoomFactor = XAxisZoomFactor * 2;
-            _plotGridLineNumbersService.AddXAxisNumber(_centerX, _centerY,
+            _plotGridLineNumbersService.AddXAxisNumber(_actualCenterXWPF, _actualCenterYWPF,
                 GraphWidth, GraphHeight, XAxisZoomFactor,
                 InternalXAxisScalingFactor, ref xAxisNumbers);
             OnPropertyChanged(nameof(XAxisNumbers));
@@ -596,7 +624,7 @@ namespace GraphPlotter.Screens.ViewModels
         private void ExecuteHorizontalZoomOut(object obj)
         {
             XAxisZoomFactor = XAxisZoomFactor / 2;
-            _plotGridLineNumbersService.AddXAxisNumber(_centerX, _centerY,
+            _plotGridLineNumbersService.AddXAxisNumber(_actualCenterXWPF, _actualCenterYWPF,
                 GraphWidth, GraphHeight, XAxisZoomFactor,
                 InternalXAxisScalingFactor, ref xAxisNumbers);
             OnPropertyChanged(nameof(XAxisNumbers));
@@ -621,7 +649,7 @@ namespace GraphPlotter.Screens.ViewModels
         {
             YAxisZoomFactor = YAxisZoomFactor * 2;
 
-            _plotGridLineNumbersService.AddYAxisNumber(_centerX, _centerY,
+            _plotGridLineNumbersService.AddYAxisNumber(_actualCenterXWPF, _actualCenterYWPF,
                 GraphWidth, GraphHeight, XAxisZoomFactor, YAxisZoomFactor,
                 AmplitudeEnlargingFactorInternal, InternalXAxisScalingFactor,ref yAxisNumbers);
             OnPropertyChanged(nameof(YAxisNumbers));
@@ -646,7 +674,7 @@ namespace GraphPlotter.Screens.ViewModels
         private void ExecuteVerticalZoomOut(object obj)
         {
             YAxisZoomFactor = YAxisZoomFactor / 2;
-            _plotGridLineNumbersService.AddYAxisNumber(_centerX, _centerY,
+            _plotGridLineNumbersService.AddYAxisNumber(_actualCenterXWPF, _actualCenterYWPF,
                 GraphWidth, GraphHeight, XAxisZoomFactor, YAxisZoomFactor,
                 AmplitudeEnlargingFactorInternal, InternalXAxisScalingFactor, ref yAxisNumbers);
             OnPropertyChanged(nameof(YAxisNumbers));
@@ -689,11 +717,11 @@ namespace GraphPlotter.Screens.ViewModels
             XAxisZoomFactor = 1;
             YAxisZoomFactor = 1;
             PlotTrignometricFunctions(SelectedTrigoFunction);
-            _plotGridLineNumbersService.AddXAxisNumber(_centerX, _centerY,
+            _plotGridLineNumbersService.AddXAxisNumber(_defaultCenterXWPF, _defaultCenterYWPF,
                 GraphWidth, GraphHeight, XAxisZoomFactor,
                 InternalXAxisScalingFactor, ref xAxisNumbers);
             OnPropertyChanged(nameof(XAxisNumbers));
-            _plotGridLineNumbersService.AddYAxisNumber(_centerX, _centerY,
+            _plotGridLineNumbersService.AddYAxisNumber(_defaultCenterXWPF, _defaultCenterYWPF,
                 GraphWidth, GraphHeight, XAxisZoomFactor, YAxisZoomFactor,
                 AmplitudeEnlargingFactorInternal, InternalXAxisScalingFactor, ref yAxisNumbers);
             OnPropertyChanged(nameof(YAxisNumbers));

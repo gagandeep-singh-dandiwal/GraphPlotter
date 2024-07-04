@@ -23,9 +23,9 @@ namespace GraphPlotter.Services
         /// The method plots the sine function
         /// </summary>
         /// <param name="graphWidth">The width of the graph</param>
-        /// <param name="centerX">The x coordinate of center</param>
-        /// <param name="centerY">The y coordinate of center</param>
-        /// <param name="internalXAxisEnlargingFactorter">The internal x axis sclaing factor</param>
+        /// <param name="actualCenterXWPF">The x coordinate of center</param>
+        /// <param name="actualCenterYWPF">The y coordinate of center</param>
+        /// <param name="internalXAxisScalingFactor">The internal x axis sclaing factor</param>
         /// <param name="amplitudeEnlargingFactorInternal">The internal amplitude enlarging factor</param>
         /// <param name="amplitudeEnlargingFactorExternal">The amplitude A of the wave</param>
         /// <param name="timePeriod">The time period of the wave</param>
@@ -34,8 +34,8 @@ namespace GraphPlotter.Services
         /// <param name="strokes">The colleciton of strokes which make up the wave</param>
         /// <returns>The collection of strokes which make up the sine wave</returns>
         public StrokeCollection PlotSine(double graphWidth,
-            double centerX, double centerY, double XAxisZoomFactor, double YAxisZoomFactor,
-            double internalXAxisEnlargingFactorter, double amplitudeEnlargingFactorInternal,
+            double actualCenterXWPF, double actualCenterYWPF, double XOffSet, double YOffSet, double XAxisZoomFactor, double YAxisZoomFactor,
+            double internalXAxisScalingFactor, double amplitudeEnlargingFactorInternal,
             double amplitudeEnlargingFactorExternal, string timePeriod, string phaseShift,
             string verticalShift, StrokeCollection strokes)
         {
@@ -44,14 +44,18 @@ namespace GraphPlotter.Services
             for (double i = 0; i < graphWidth; i = i + 0.1)
             {
                 double omega = 2 / Convert.ToDouble(timePeriod);
-                double X = (i - centerX) / (internalXAxisEnlargingFactorter*XAxisZoomFactor);
+                double X = (i - actualCenterXWPF) / (internalXAxisScalingFactor*XAxisZoomFactor);
                 double Phi = Convert.ToDouble(phaseShift) * (Math.PI);
+                double xOffSetForSine = XOffSet*Math.PI;
+                //double xOffSetForSine = (graphWidth/2-actualCenterXWPF)/ Math.PI * internalXAxisScalingFactor* XAxisZoomFactor;
+                //double yOffSet = (graphheight/2-actualCenterYWPF)/amplitudeEnlargingFactorInternal*YAxisZoomFactor;
+                double yOffSetForSine = YOffSet * amplitudeEnlargingFactorInternal * YAxisZoomFactor;
                 double sineValue = (amplitudeEnlargingFactorInternal *
                     amplitudeEnlargingFactorExternal *YAxisZoomFactor*
-                    Math.Sin((omega * X) - Phi));
+                    Math.Sin((omega * X) - Phi- xOffSetForSine));
                 double D = Convert.ToDouble(verticalShift) * amplitudeEnlargingFactorInternal*YAxisZoomFactor;
                 StylusPoint pointSin = new StylusPoint
-                    (i, centerY - sineValue - D);
+                    (i, actualCenterYWPF - sineValue - D - yOffSetForSine);
                 stylusPointsCollection.Add(pointSin);
             }
             Stroke SingleStroke = new Stroke(stylusPointsCollection);
