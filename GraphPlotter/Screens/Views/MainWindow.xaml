@@ -91,30 +91,43 @@
             </InkCanvas>
 
             <!--The Graph Area-->
-            <InkCanvas x:Name="inkCanvas" Grid.Row="0" Grid.Column="0" EditingMode="None" Background="Transparent"
+            <InkCanvas x:Name="inkCanvas" Grid.Row="0" Grid.Column="0" 
+                       EditingMode="None" Background="Transparent"
                     HorizontalAlignment="Left"
                     VerticalAlignment="Top"
                     Width="{Binding GraphWidth}" 
                     Height="{Binding GraphHeight}"
                     Strokes="{Binding Strokes,Mode=TwoWay}">
-                <InkCanvas.RenderTransform>
-                    <TransformGroup>
-                        <ScaleTransform x:Name="scaleTransform"/>
-                        <TranslateTransform x:Name="translateTransform"/>
-                    </TransformGroup>
-                </InkCanvas.RenderTransform>
             </InkCanvas>
 
             <!--The Parameters-->
             <Grid Grid.Row="0" Grid.Column="1" Margin="10">
                 <Grid.RowDefinitions>
+                    <!--Row 0 Function-->
                     <RowDefinition Height="30"/>
+                    <!--Row 1  Amplitude-->
                     <RowDefinition Height="30"/>
+                    <!--Row 2 Period-->
                     <RowDefinition Height="30"/>
+                    <!--Row 3 Phase shift-->
                     <RowDefinition Height="30"/>
+                    <!--Row 4 Vertical shift-->
                     <RowDefinition Height="30"/>
+                    <!--Row 5 Save As vector-->
+                    <RowDefinition Height="30"/>
+                    <!--Row 6 Reset zoom-->
+                    <RowDefinition Height="30"/>
+                    <!--Row 7 Center x-->
+                    <RowDefinition Height="30"/>
+                    <!--Row 8 Center Y-->
+                    <RowDefinition Height="30"/>
+                    <!--Row 9 Reset Position -->
+                    <RowDefinition Height="30"/>
+                    <!--Row 10 The gap row -->
                     <RowDefinition Height="*"/>
+                    <!--Row 11 The vertical zoom in row-->
                     <RowDefinition Height="Auto"/>
+                    <!--Row 12 The vertical zoom out row-->
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
@@ -180,18 +193,64 @@
                         <localBehaviour:TextInputBehaviour/>
                     </i:Interaction.Behaviors>
                 </TextBox>
-
-                <!--Row 5 has * height to make sure that the vertical zoom in and zoom out row is at bottom-->
                 
-                <!--Row 6 - Vertical Zoom in button-->
-                <Button Grid.Row="6" Grid.Column="0" Width="20"
+                <!--Row 5 - Save to Svg format button-->
+                <Button Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2"
+                        Height="25"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Command="{Binding SaveToSVGFormatCommand}"
+                        Content="Save as Vector Format"/>
+
+                <!--Row 6 - Reset Zoom button-->
+                <Button Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Height="25"
+                        Width="80"
+                        Command="{Binding ResetZoomCommand}"
+                        Content="Reset Zoom"/>
+                
+                <!--Row 7 - center x coordinate-->
+                <Label Grid.Row="7" Grid.Column="0" 
+                       Height="30" Width="100" 
+                       Content="Center X :"/>
+                <TextBox Grid.Row="7" Grid.Column="1"
+                        Height="20" Width="100"
+                        Text="{Binding XOffset,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                    <i:Interaction.Behaviors>
+                        <localBehaviour:TextInputBehaviour/>
+                    </i:Interaction.Behaviors>
+                </TextBox>
+
+                <!--Row 8 - center y coordinate-->
+                <Label Grid.Row="8" Grid.Column="0" 
+                       Height="30" Width="100" 
+                       Content="Center Y :"/>
+                <TextBox Grid.Row="8" Grid.Column="1"
+                       Height="20" Width="100"
+                       Text="{Binding YOffset,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                    <i:Interaction.Behaviors>
+                        <localBehaviour:TextInputBehaviour/>
+                    </i:Interaction.Behaviors>
+                </TextBox>
+
+                <!--Row 9 - Reset Zoom button-->
+                <Button Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Height="25" Width="80"
+                        Command="{Binding ResetGraphPostionCommand}"
+                        Content="Reset Position"/>
+
+                <!--Row 10 has * height to make sure that the vertical zoom in and zoom out row is at bottom-->
+                
+                <!--Row 11 - Vertical Zoom in button-->
+                <Button Grid.Row="11" Grid.Column="0" Width="20"
                              VerticalAlignment="Top" HorizontalAlignment="Left" 
                         Style="{StaticResource btnZoom}"
                         Command="{Binding VerticalZoomInCommand}"
                         Content="+"/>
 
-                <!--Row 6 - Vertical Zoom out button-->
-                <Button Grid.Row="7" Grid.Column="0" Width="20"
+                <!--Row 12 - Vertical Zoom out button-->
+                <Button Grid.Row="12" Grid.Column="0" Width="20"
                         VerticalAlignment="Top" HorizontalAlignment="Left" 
                         Style="{StaticResource btnZoom}"
                         Command="{Binding VerticalZoomOutCommand}"

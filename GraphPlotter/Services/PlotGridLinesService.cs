@@ -70,12 +70,12 @@ namespace GraphPlotter.Services
             //+ve X axis lines
             //increments in multiples of pi/4
             int lineCount = 0;
-            for (double i = 0; i < graphWidth / 2; i = i + Math.PI / 4)
+            for (double i = 0; i < graphWidth / 2; i = i + Math.PI / 4 * internalXAxisEnlargingFactor)
             {
                 GridLine numberIndicatorLine = new GridLine();
-                numberIndicatorLine.StartXPoint = internalXAxisEnlargingFactor * i + centerX;
+                numberIndicatorLine.StartXPoint = i + centerX;
                 numberIndicatorLine.StartYPoint = 0;
-                numberIndicatorLine.EndXPoint = internalXAxisEnlargingFactor * i + centerX;
+                numberIndicatorLine.EndXPoint = i + centerX;
                 numberIndicatorLine.EndYPoint = graphHeight;
 
                 //the Y axis has to be thickest
@@ -100,14 +100,14 @@ namespace GraphPlotter.Services
 
             // -ve x axis lines
             lineCount = 0;
-            for (double i = 0; i < graphWidth / 2; i = i + Math.PI / 4)
+            for (double i = 0; i < graphWidth / 2; i = i + Math.PI / 4 * internalXAxisEnlargingFactor)
             {
                 GridLine numberIndicatorLine = new GridLine();
                 //i in the below line has been multiplied by 10 , because the enlarging factor is 10
                 //That means the actual 1 on x-axis is not 1 but 10
-                numberIndicatorLine.StartXPoint = centerX - internalXAxisEnlargingFactor * i;
+                numberIndicatorLine.StartXPoint = centerX -  i;
                 numberIndicatorLine.StartYPoint = 0;
-                numberIndicatorLine.EndXPoint = centerX - internalXAxisEnlargingFactor * i;
+                numberIndicatorLine.EndXPoint = centerX - i;
                 numberIndicatorLine.EndYPoint = graphHeight;
 
                 //the Y axis has to be thickest

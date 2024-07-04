@@ -1,4 +1,5 @@
 ﻿using GraphPlotter.Common;
+using GraphPlotter.Interfaces.ServiceInterfaces;
 using GraphPlotter.ServicInterfaces.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,9 @@ using System.Windows.Controls;
 using System.Windows.Ink;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using static System.Net.Mime.MediaTypeNames;
+using static System.Net.WebRequestMethods;
 
 namespace GraphPlotter.Screens.ViewModels
 {
@@ -22,16 +25,24 @@ namespace GraphPlotter.Screens.ViewModels
     {
         #region Constructor
         public MainWindowViewModel(IPlotGridLinesService plotGridLinesService,
-            IPlotTrignometricFunctionsService plotTrignometricFunctionsService)
+            IPlotTrignometricFunctionsService plotTrignometricFunctionsService,
+            IPlotGridLineNumbersService plotGridLineNumbersService,
+            IConvertStrokeCollectionToSVGService convertStrokeCollectionToSVGService)
         {
             _plotGridLinesService = plotGridLinesService;
             _plotTrignometricFunctionsService = plotTrignometricFunctionsService;
+            _plotGridLineNumbersService = plotGridLineNumbersService;
+            _convertStrokeCollectionToSVGService = convertStrokeCollectionToSVGService;
             HorizontalZoomInCommand = new RelayCommand(ExecuteHorizontalZoomIn, CanExecuteHorizontalZoomIn);
             HorizontalZoomOutCommand = new RelayCommand(ExecuteHorizontalZoomOut, CanExecuteHorizontalZoomOut);
             VerticalZoomInCommand = new RelayCommand(ExecuteVerticalZoomIn, CanExecuteVerticalZoomIn);
             VerticalZoomOutCommand = new RelayCommand(ExecuteVerticalZoomOut, CanExecuteVerticalZoomOut);
+            SaveToSVGFormatCommand = new RelayCommand(ExecuteSaveToSVGFormat, CanExecuteSaveToSVGFormat);
+            ResetZoomCommand = new RelayCommand(ExecuteResetZoom, CanExecuteResetZoom);
             InitializeGraph();
         }
+
+        
 
         #endregion
 
@@ -144,6 +155,19 @@ namespace GraphPlotter.Screens.ViewModels
         /// </summary>
         private readonly IPlotTrignometricFunctionsService _plotTrignometricFunctionsService;
 
+        /// <summary>
+        /// The field is for accessing the PlotGridLineNumbersService.
+        /// It is received from the unity container in the constructor.
+        /// </summary>
+        private readonly IPlotGridLineNumbersService _plotGridLineNumbersService;
+
+        /// <summary>
+        /// The field is for accessing the ConvertStrokeCollectionToSVGService.
+        /// It is received from the unity container in the constructor.
+        /// </summary>
+        private readonly IConvertStrokeCollectionToSVGService _convertStrokeCollectionToSVGService;
+
+        
         #endregion
 
         #region Properties
@@ -359,15 +383,58 @@ namespace GraphPlotter.Screens.ViewModels
         /// The zoom factor along the x axis.
         /// </summary>
         public double XAxisZoomFactor { get; set; } = 1;
+        
+        /// <summary>
+        /// The command which is called when Reset Zoom button is pressed.
+        /// </summary>
+        public RelayCommand ResetZoomCommand { get; set; }
 
         /// <summary>
-        /// The command which is called when + for horizontal zoom is pressed.
+        /// The command which is called when + for horizontal zoom in is pressed.
         /// </summary>
         public RelayCommand HorizontalZoomInCommand { get;set; }
+
+        /// <summary>
+        /// The command which is called when - for horizontal zoom out is pressed.
+        /// </summary>
         public RelayCommand HorizontalZoomOutCommand { get; set; }
+
+        /// <summary>
+        /// The command which is called when + for vertical zoom in is pressed.
+        /// </summary>
         public RelayCommand VerticalZoomInCommand { get; set; }
+
+        /// <summary>
+        /// The command which is called when - for vertical zoom out is pressed.
+        /// </summary>
         public RelayCommand VerticalZoomOutCommand { get; set; }
 
+        /// <summary>
+        /// The command which is called when Save to SVG format is pressed.
+        /// </summary>
+        public RelayCommand SaveToSVGFormatCommand { get; set; }
+
+        private string _xOffset = 0.ToString();
+        public string XOffset
+        {
+            get
+            {
+                return _xOffset;
+            }
+            set
+            {
+                _xOffset = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _yOffset = 0.ToString();
+
+        public string YOffset
+        {
+            get { return _yOffset; }
+            set { _yOffset = value;OnPropertyChanged(); }
+        }
 
 
         #endregion
@@ -403,108 +470,23 @@ namespace GraphPlotter.Screens.ViewModels
 
                 SelectedTrigoFunction = Properties.Settings.Default.FunctionType;
 
-                AddXAxisNumber();
-                AddYAxisNumber();
+                //Plot the numbers on the X Axis
+                _plotGridLineNumbersService.AddXAxisNumber(_centerX,_centerY,
+                GraphWidth, GraphHeight,  XAxisZoomFactor,
+                InternalXAxisScalingFactor,ref xAxisNumbers);
+                OnPropertyChanged(nameof(XAxisNumbers));
+
+                //Plot the numbers on the Y Axis
+                _plotGridLineNumbersService.AddYAxisNumber(_centerX,_centerY,
+                GraphWidth, GraphHeight, XAxisZoomFactor, YAxisZoomFactor,
+                AmplitudeEnlargingFactorInternal, InternalXAxisScalingFactor,ref yAxisNumbers);
+                OnPropertyChanged(nameof(YAxisNumbers));
+
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
-            
-        }
-
-        public void AddXAxisNumber()
-        {
-            XAxisNumbers = new ObservableCollection<Number>();
-            int numberOfLines = Convert.ToInt32(GraphWidth / (Math.PI * InternalXAxisScalingFactor) - 1);
-            double start = -GraphWidth / (2*Math.PI * InternalXAxisScalingFactor*XAxisZoomFactor);
-            double end = -start;
-            //+ve x axis numbers
-            for (int i = 0; i < numberOfLines/2+1; i++)
-            {
-                Number number = new Number();
-
-                if (i == 0)
-                {
-                    number.X = _centerX;
-                    number.Y = _centerY;
-                    number.Value = "0";
-                }
-                else
-                {
-                    number.X = _centerX + (i * Math.PI * InternalXAxisScalingFactor);
-                    number.Y = _centerY; 
-                    if (i / XAxisZoomFactor == 1)
-                    {
-                        number.Value = "π";
-                    }
-                    else
-                    {
-                        number.Value = Math.Round((i / XAxisZoomFactor), 4).ToString() + "π";
-                    }
-                }
-                XAxisNumbers.Add(number);
-            }
-            //-ve x axis numbers
-            for (int i = -1; i > -numberOfLines / 2 - 1; i--)
-            {
-                Number number = new Number();
-
-                number.X = _centerX + (i * Math.PI * InternalXAxisScalingFactor);
-                number.Y = _centerY;
-                if (i / XAxisZoomFactor == -1)
-                {
-                    number.Value = "-π";
-                }
-                else
-                {
-                    number.Value = Math.Round((i / XAxisZoomFactor), 4).ToString() + "π";
-                }
-
-                XAxisNumbers.Add(number);
-            }
-            OnPropertyChanged(nameof(XAxisNumbers));
-        }
-
-        public void AddYAxisNumber()
-        {
-            YAxisNumbers = new ObservableCollection<Number>();
-            double start = -GraphHeight / (2*AmplitudeEnlargingFactorInternal * YAxisZoomFactor);
-            double end = -start;
-            for (double i = start; i < end; i = i + 1 / YAxisZoomFactor)
-            {
-                Number number = new Number();
-
-                 if (i == 0)
-                {
-                    continue;
-                }
-                else
-                {
-                    number.X = _centerX + 4;
-                    number.Y = _centerY - (i  * AmplitudeEnlargingFactorInternal * YAxisZoomFactor);
-                    number.Value = i.ToString();
-                }
-                YAxisNumbers.Add(number);
-            }
-            OnPropertyChanged(nameof(XAxisNumbers));
-        }
-        public bool CanExecutePlotCommand(object parameter)
-        {
-            return true;
-        }
-        private void SaveSvgToFile(string svgPathData, string filePath)
-        {
-            string svgContent = $@"
-                                <svg xmlns='http://www.w3.org/2000/svg' version='1.1' width='800' height='800'>
-                                    <path d='{svgPathData}' stroke='Red' stroke-width='2' fill='none'/>
-                                </svg>";
-
-            File.WriteAllText(filePath, svgContent);
-        }
-        public void ExecutePlotCommand(object parameter)
-        {
-
         }
 
         /// <summary>
@@ -573,54 +555,148 @@ namespace GraphPlotter.Screens.ViewModels
             }
         }
 
+        /// <summary>
+        /// This method tells if the horizontal zoom in can be executed.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         private bool CanExecuteHorizontalZoomIn(object obj)
         {
             return true;
         }
 
+        /// <summary>
+        /// This methods is called when Horizontal Zoom In button is clicked.
+        /// </summary>
+        /// <param name="obj"></param>
         private void ExecuteHorizontalZoomIn(object obj)
         {
             XAxisZoomFactor = XAxisZoomFactor * 2;
-            AddXAxisNumber();
+            _plotGridLineNumbersService.AddXAxisNumber(_centerX, _centerY,
+                GraphWidth, GraphHeight, XAxisZoomFactor,
+                InternalXAxisScalingFactor, ref xAxisNumbers);
+            OnPropertyChanged(nameof(XAxisNumbers));
             PlotTrignometricFunctions(SelectedTrigoFunction);
         }
 
-
+        /// <summary>
+        /// This method tells if the horizontal zoom out can be executed.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         private bool CanExecuteHorizontalZoomOut(object obj)
         {
             return true;
         }
 
+        /// <summary>
+        /// This methods is called when Horizontal Zoom Out button is clicked.
+        /// </summary>
+        /// <param name="obj"></param>
         private void ExecuteHorizontalZoomOut(object obj)
         {
             XAxisZoomFactor = XAxisZoomFactor / 2;
-            AddXAxisNumber();
+            _plotGridLineNumbersService.AddXAxisNumber(_centerX, _centerY,
+                GraphWidth, GraphHeight, XAxisZoomFactor,
+                InternalXAxisScalingFactor, ref xAxisNumbers);
+            OnPropertyChanged(nameof(XAxisNumbers));
             PlotTrignometricFunctions(SelectedTrigoFunction);
         }
 
+        /// <summary>
+        /// This method tells if the vertical zoom in can be executed.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         private bool CanExecuteVerticalZoomIn(object obj)
         {
             return true;
         }
 
+        /// <summary>
+        /// This methods is called when Vertical Zoom In button is clicked.
+        /// </summary>
+        /// <param name="obj"></param>
         private void ExecuteVerticalZoomIn(object obj)
         {
             YAxisZoomFactor = YAxisZoomFactor * 2;
-            AddYAxisNumber();
+
+            _plotGridLineNumbersService.AddYAxisNumber(_centerX, _centerY,
+                GraphWidth, GraphHeight, XAxisZoomFactor, YAxisZoomFactor,
+                AmplitudeEnlargingFactorInternal, InternalXAxisScalingFactor,ref yAxisNumbers);
+            OnPropertyChanged(nameof(YAxisNumbers));
+
             PlotTrignometricFunctions(SelectedTrigoFunction);
         }
 
-
+        /// <summary>
+        /// This method tells if the vertical zoom out can be executed.
+        /// </summary>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         private bool CanExecuteVerticalZoomOut(object obj)
         {
             return true;
         }
 
+        /// <summary>
+        /// This methods is called when Vertical Zoom Out button is clicked.
+        /// </summary>
+        /// <param name="obj"></param>
         private void ExecuteVerticalZoomOut(object obj)
         {
             YAxisZoomFactor = YAxisZoomFactor / 2;
-            AddYAxisNumber();
+            _plotGridLineNumbersService.AddYAxisNumber(_centerX, _centerY,
+                GraphWidth, GraphHeight, XAxisZoomFactor, YAxisZoomFactor,
+                AmplitudeEnlargingFactorInternal, InternalXAxisScalingFactor, ref yAxisNumbers);
+            OnPropertyChanged(nameof(YAxisNumbers));
+
             PlotTrignometricFunctions(SelectedTrigoFunction);
+        }
+
+        private bool CanExecuteSaveToSVGFormat(object obj)
+        {
+            return true;
+        }
+
+        private void ExecuteSaveToSVGFormat(object obj)
+        {
+            try
+            {
+                Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog();
+                saveFileDialog.Filter = "SVG Files (*.svg)|*.svg";
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    _convertStrokeCollectionToSVGService.SaveSvgToFile(saveFileDialog.FileName,Strokes,
+                        XAxisGridLines,YAxisGridLines,
+                        XAxisNumbers,YAxisNumbers,
+                        GraphWidth,GraphHeight);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Failed to save the file. " + ex.Message);
+            }
+        }
+
+        private bool CanExecuteResetZoom(object obj)
+        {
+            return true;
+        }
+
+        private void ExecuteResetZoom(object obj)
+        {
+            XAxisZoomFactor = 1;
+            YAxisZoomFactor = 1;
+            PlotTrignometricFunctions(SelectedTrigoFunction);
+            _plotGridLineNumbersService.AddXAxisNumber(_centerX, _centerY,
+                GraphWidth, GraphHeight, XAxisZoomFactor,
+                InternalXAxisScalingFactor, ref xAxisNumbers);
+            OnPropertyChanged(nameof(XAxisNumbers));
+            _plotGridLineNumbersService.AddYAxisNumber(_centerX, _centerY,
+                GraphWidth, GraphHeight, XAxisZoomFactor, YAxisZoomFactor,
+                AmplitudeEnlargingFactorInternal, InternalXAxisScalingFactor, ref yAxisNumbers);
+            OnPropertyChanged(nameof(YAxisNumbers));
         }
         #endregion
 

@@ -1,4 +1,5 @@
-﻿using GraphPlotter.Services;
+﻿using GraphPlotter.Interfaces.ServiceInterfaces;
+using GraphPlotter.Services;
 using GraphPlotter.ServicInterfaces.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -46,6 +47,9 @@ namespace GraphPlotter
             // Register types with the container
             container.RegisterType<IPlotTrignometricFunctionsService, PlotTrignometricFunctionsService>();
             container.RegisterType<IPlotGridLinesService, PlotGridLinesService>();
+            container.RegisterType<IPlotGridLineNumbersService, PlotGridLineNumbersService>();
+            container.RegisterType<IConvertStrokeCollectionToSVGService, ConvertStrokeCollectionToSVGService>();
+
             container.RegisterType<MainWindow>();
         }
         private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)

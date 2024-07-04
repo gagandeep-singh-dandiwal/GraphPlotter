@@ -69,6 +69,10 @@
     </ApplicationDefinition>
     <Compile Include="Common\Behaviours\TextInputBehaviour.cs" />
     <Compile Include="Common\Number.cs" />
+    <Compile Include="Interfaces\ServiceInterfaces\IConvertStrokeCollectionToSVGService.cs" />
+    <Compile Include="Interfaces\ServiceInterfaces\IPlotGridLineNumbersService.cs" />
+    <Compile Include="Services\ConvertStrokeCollectionToSVGService.cs" />
+    <Compile Include="Services\PlotGridLineNumbersService.cs" />
     <Compile Include="Services\PlotGridLinesService.cs" />
     <Compile Include="Services\PlotTrignometricFunctionsService.cs" />
     <Page Include="Screens\Views\MainWindow.xaml">
