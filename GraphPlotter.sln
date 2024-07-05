@@ -5,6 +5,8 @@ VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphPlotter", "GraphPlotter\GraphPlotter.csproj", "{D508DCE1-47B9-4A49-A7FF-BE5BE4AE714E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GraphPlotterTest", "GraphPlotterTest\GraphPlotterTest.csproj", "{869B8445-502B-4C68-B569-57ACD782673C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{D508DCE1-47B9-4A49-A7FF-BE5BE4AE714E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D508DCE1-47B9-4A49-A7FF-BE5BE4AE714E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D508DCE1-47B9-4A49-A7FF-BE5BE4AE714E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{869B8445-502B-4C68-B569-57ACD782673C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{869B8445-502B-4C68-B569-57ACD782673C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{869B8445-502B-4C68-B569-57ACD782673C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{869B8445-502B-4C68-B569-57ACD782673C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

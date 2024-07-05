@@ -25,7 +25,7 @@ namespace GraphPlotter.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("sin")]
         public string FunctionType {
             get {
                 return ((string)(this["FunctionType"]));
@@ -37,7 +37,7 @@ namespace GraphPlotter.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
         public string Amplitude {
             get {
                 return ((string)(this["Amplitude"]));
@@ -80,6 +80,54 @@ namespace GraphPlotter.Properties {
             }
             set {
                 this["VerticalShift"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double CenterX {
+            get {
+                return ((double)(this["CenterX"]));
+            }
+            set {
+                this["CenterX"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public double CenterY {
+            get {
+                return ((double)(this["CenterY"]));
+            }
+            set {
+                this["CenterY"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public double HorizontalZoom {
+            get {
+                return ((double)(this["HorizontalZoom"]));
+            }
+            set {
+                this["HorizontalZoom"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public double VerticalZoom {
+            get {
+                return ((double)(this["VerticalZoom"]));
+            }
+            set {
+                this["VerticalZoom"] = value;
             }
         }
     }

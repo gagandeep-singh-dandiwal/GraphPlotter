@@ -10,8 +10,16 @@ using System.Windows.Ink;
 
 namespace GraphPlotter.Services
 {
+    /// <summary>
+    /// This class helps in converting the stroke collection to SVG path data.
+    /// </summary>
     public class ConvertStrokeCollectionToSVGService : IConvertStrokeCollectionToSVGService
     {
+        /// <summary>
+        /// This methods convert the stroke collection to SVG path data and returns it as a string
+        /// </summary>
+        /// <param name="strokeCollection"></param>
+        /// <returns></returns>
         public string ConvertStrokeToSvgPath(StrokeCollection strokeCollection)
         {
             string paths = string.Empty;
@@ -40,6 +48,19 @@ namespace GraphPlotter.Services
             }
             return paths.Trim();
         }
+
+        /// <summary>
+        /// This methods is called when user clicks on save as svg data.
+        /// In this method the strokes are converted to strings and converted to svg file format.
+        /// </summary>
+        /// <param name="filePath"></param>
+        /// <param name="Strokes"></param>
+        /// <param name="XAxisGridLines"></param>
+        /// <param name="YAxisGridLines"></param>
+        /// <param name="XAxisNumbers"></param>
+        /// <param name="YAxisNumbers"></param>
+        /// <param name="GraphWidth"></param>
+        /// <param name="GraphHeight"></param>
         public void SaveSvgToFile(string filePath,StrokeCollection Strokes,
             ObservableCollection<GridLine> XAxisGridLines, ObservableCollection<GridLine> YAxisGridLines,
             ObservableCollection<Number> XAxisNumbers, ObservableCollection<Number> YAxisNumbers,
@@ -60,6 +81,13 @@ namespace GraphPlotter.Services
 
             System.IO.File.WriteAllText(filePath, svgContent);
         }
+
+        /// <summary>
+        /// This methods adds the x axis and y axis numbers into the svg file.
+        /// </summary>
+        /// <param name="XAxisNumbers"></param>
+        /// <param name="YAxisNumbers"></param>
+        /// <returns></returns>
         public string ConvertCoordinatesToSVG(ObservableCollection<Number> XAxisNumbers, 
             ObservableCollection<Number> YAxisNumbers)
         {
@@ -75,6 +103,13 @@ namespace GraphPlotter.Services
             textString = textString.Replace(",", ".");
             return textString;
         }
+
+        /// <summary>
+        /// This method adds the grid lines to the svg file.
+        /// </summary>
+        /// <param name="xAxisGridLineCollection"></param>
+        /// <param name="yAxisGridLineCollection"></param>
+        /// <returns></returns>
         public string ConvertGridLinesToSVG(ObservableCollection<GridLine> xAxisGridLineCollection,
             ObservableCollection<GridLine> yAxisGridLineCollection)
         {

@@ -9,7 +9,10 @@ using System.Threading.Tasks;
 
 namespace GraphPlotter.Services
 {
-    internal class PlotGridLineNumbersService : IPlotGridLineNumbersService
+    /// <summary>
+    /// This class calculates the x axis and y axis numbers and puts them into a list and returns them.
+    /// </summary>
+    public class PlotGridLineNumbersService : IPlotGridLineNumbersService
     {
         /// <summary>
         /// The method is used to add numbers on the X-Axis.

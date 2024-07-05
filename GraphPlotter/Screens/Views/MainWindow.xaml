@@ -18,7 +18,7 @@
             </Style.Triggers>
         </Style>
     </Window.Resources>
-    <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -210,7 +210,7 @@
                         Height="20" Width="100"
                         Text="{Binding XOffset,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
                          IsEnabled="{Binding IsOffsetTextboxEnabled,Mode=TwoWay}"
-                         ToolTip="Type the x coordinate of the point as a multiple of pi, where you want to zoom in. Currently functional only with Sine"
+                         ToolTip="Type the x coordinate of the point as a multiple of pi, which you want to bring to the center of the graph."
                          ToolTipService.InitialShowDelay="1">
                     <i:Interaction.Behaviors>
                         <localBehaviour:TextInputBehaviour/>
@@ -227,7 +227,7 @@
                        Height="20" Width="100"
                        Text="{Binding YOffset,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
                          IsEnabled="{Binding IsOffsetTextboxEnabled,Mode=TwoWay}"
-                         ToolTip="Type the y coordinate of the point where you want to zoom in. Currently functional only with Sine"
+                         ToolTip="Type the y coordinate of the point where you want to bring to the center of the graph."
                          ToolTipService.InitialShowDelay="1">
                     <i:Interaction.Behaviors>
                         <localBehaviour:TextInputBehaviour/>
@@ -241,7 +241,9 @@
                         HorizontalAlignment="Center" VerticalAlignment="Center"
                         Height="25" Width="150"
                         Command="{Binding ResetGraphPostionCommand}"
-                        Content="Reset Position"/>
+                        Content="Reset Position"
+                        ToolTip="Reset the center coordinates to (0,0)"
+                        ToolTipService.InitialShowDelay="1"/>
 
                 <!--Row 8 - Save to Svg format button-->
                 <Button Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2"
