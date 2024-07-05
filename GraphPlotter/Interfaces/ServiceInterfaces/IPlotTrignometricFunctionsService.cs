@@ -15,12 +15,13 @@ namespace GraphPlotter.ServicInterfaces.Interfaces
             double AmplitudeEnlargingFactorExternal, string TimePeriod, string PhaseShift, 
             string VerticalShift, StrokeCollection Strokes);
 
-        StrokeCollection PlotCos(double GraphWidth,
-            double CenterX, double CenterY,
+        StrokeCollection PlotCos(double graphWidth, double graphHeight,
+            double actualCenterXWPF, double actualCenterYWPF,
+            double XOffSet, double YOffSet,
             double XAxisZoomFactor, double YAxisZoomFactor,
-            double InternalXAxisEnlargingFactor, double AmplitudeEnlargingFactorInternal,
-            double AmplitudeEnlargingFactorExternal, string TimePeriod, string PhaseShift, 
-            string VerticalShift, StrokeCollection Strokes);
+            double internalXAxisScalingFactor, double amplitudeEnlargingFactorInternal,
+            double amplitudeEnlargingFactorExternal, string timePeriod, string phaseShift,
+            string verticalShift, StrokeCollection strokes);
 
         StrokeCollection PlotTan(double GraphWidth,
             double CenterX, double CenterY,
@@ -50,11 +51,12 @@ namespace GraphPlotter.ServicInterfaces.Interfaces
             double AmplitudeEnlargingFactorExternal, string TimePeriod, string PhaseShift, 
             string VerticalShift, StrokeCollection Strokes);
 
-        StrokeCollection PlotSinC(double GraphWidth,
-            double CenterX, double CenterY,
+        StrokeCollection PlotSinC(double graphWidth, double graphHeight,
+            double centerX, double centerY,
+            double XOffSet, double YOffSet,
             double XAxisZoomFactor, double YAxisZoomFactor,
-            double InternalXAxisEnlargingFactor, double AmplitudeEnlargingFactorInternal,
-            double AmplitudeEnlargingFactorExternal, string TimePeriod, string PhaseShift, 
-            string VerticalShift, StrokeCollection Strokes);
+            double internalXAxisEnlargingFactorterY, double amplitudeEnlargingFactorInternal,
+            double amplitudeEnlargingFactorExternal, string timePeriod, string phaseShift,
+            string verticalShift, StrokeCollection strokes);
     }
 }

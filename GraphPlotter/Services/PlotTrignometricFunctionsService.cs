@@ -34,7 +34,9 @@ namespace GraphPlotter.Services
         /// <param name="strokes">The colleciton of strokes which make up the wave</param>
         /// <returns>The collection of strokes which make up the sine wave</returns>
         public StrokeCollection PlotSine(double graphWidth,double graphHeight,
-            double actualCenterXWPF, double actualCenterYWPF, double XOffSet, double YOffSet, double XAxisZoomFactor, double YAxisZoomFactor,
+            double actualCenterXWPF, double actualCenterYWPF, 
+            double XOffSet, double YOffSet, 
+            double XAxisZoomFactor, double YAxisZoomFactor,
             double internalXAxisScalingFactor, double amplitudeEnlargingFactorInternal,
             double amplitudeEnlargingFactorExternal, string timePeriod, string phaseShift,
             string verticalShift, StrokeCollection strokes)
@@ -91,8 +93,8 @@ namespace GraphPlotter.Services
         /// The method plots the cosine function
         /// </summary>
         /// <param name="graphWidth">The width of the graph</param>
-        /// <param name="centerX">The x coordinate of center</param>
-        /// <param name="centerY">The y coordinate of center</param>
+        /// <param name="actualCenterXWPF">The x coordinate of center</param>
+        /// <param name="actualCenterYWPF">The y coordinate of center</param>
         /// <param name="internalXAxisEnlargingFactorterY">The internal x axis sclaing factor</param>
         /// <param name="amplitudeEnlargingFactorInternal">The internal amplitude enlarging factor</param>
         /// <param name="amplitudeEnlargingFactorExternal">The amplitude A of the wave</param>
@@ -101,34 +103,59 @@ namespace GraphPlotter.Services
         /// <param name="verticalShift">The value of D i.e the shift along the y axis</param>
         /// <param name="strokes">The colleciton of strokes which make up the wave</param>
         /// <returns>The collection of strokes which make up the cosine wave</returns>
-        public StrokeCollection PlotCos(double graphWidth,
-            double centerX, double centerY,
+        public StrokeCollection PlotCos(double graphWidth,double graphHeight,
+            double actualCenterXWPF, double actualCenterYWPF,
+            double XOffSet, double YOffSet,
             double XAxisZoomFactor, double YAxisZoomFactor,
-            double internalXAxisEnlargingFactorterY, double amplitudeEnlargingFactorInternal,
+            double internalXAxisScalingFactor, double amplitudeEnlargingFactorInternal,
             double amplitudeEnlargingFactorExternal, string timePeriod, string phaseShift, 
             string verticalShift, StrokeCollection strokes)
         {
             StylusPointCollection stylusPointsCollection = new StylusPointCollection();
-
-            for (double i = 0; i < graphWidth; i = i + 0.1)
+            //plotting the positive x axis
+            for (double j = graphWidth / 2; j < graphWidth; j = j + 0.1)
             {
                 double omega = 2 / Convert.ToDouble(timePeriod);
-                double X = (i - centerX) / (internalXAxisEnlargingFactorterY * XAxisZoomFactor);
+                double X = ((j - graphWidth / 2) / (internalXAxisScalingFactor * XAxisZoomFactor)) + XOffSet * Math.PI;
                 double Phi = Convert.ToDouble(phaseShift) * (Math.PI);
-                double sineValue = (amplitudeEnlargingFactorInternal *
+                double cosValue = (amplitudeEnlargingFactorInternal *
                     amplitudeEnlargingFactorExternal * YAxisZoomFactor *
                     Math.Cos((omega * X) - Phi));
                 double D = Convert.ToDouble(verticalShift) * amplitudeEnlargingFactorInternal * YAxisZoomFactor;
+                double yOffSetForSine = YOffSet * amplitudeEnlargingFactorInternal * YAxisZoomFactor;
                 StylusPoint pointSin = new StylusPoint
-                    (i, centerY - sineValue - D);
+                    (j, (graphHeight / 2) - cosValue - D + yOffSetForSine);
                 stylusPointsCollection.Add(pointSin);
             }
-            Stroke SingleStroke = new Stroke(stylusPointsCollection);
-            SingleStroke.DrawingAttributes = new DrawingAttributes
+            Stroke PositiveXAxisSingleStroke = new Stroke(stylusPointsCollection);
+            PositiveXAxisSingleStroke.DrawingAttributes = new DrawingAttributes
             {
                 Color = Colors.Red,
             };
-            strokes.Add(SingleStroke);
+            stylusPointsCollection = new StylusPointCollection();
+
+            //plotting the negative x axis
+            for (double j = graphWidth / 2; j > 0; j = j - 0.1)
+            {
+                double omega = 2 / Convert.ToDouble(timePeriod);
+                double X = ((j - graphWidth / 2) / (internalXAxisScalingFactor * XAxisZoomFactor)) + XOffSet * Math.PI;
+                double Phi = Convert.ToDouble(phaseShift) * (Math.PI);
+                double cosValue = (amplitudeEnlargingFactorInternal *
+                    amplitudeEnlargingFactorExternal * YAxisZoomFactor *
+                    Math.Cos((omega * X) - Phi));
+                double D = Convert.ToDouble(verticalShift) * amplitudeEnlargingFactorInternal * YAxisZoomFactor;
+                double yOffSetForSine = YOffSet * amplitudeEnlargingFactorInternal * YAxisZoomFactor;
+                StylusPoint pointSin = new StylusPoint
+                    (j, (graphHeight / 2) - cosValue - D + yOffSetForSine);
+                stylusPointsCollection.Add(pointSin);
+            }
+            Stroke NegativeXAxisSingleStroke = new Stroke(stylusPointsCollection);
+            NegativeXAxisSingleStroke.DrawingAttributes = new DrawingAttributes
+            {
+                Color = Colors.Red,
+            };
+            strokes.Add(PositiveXAxisSingleStroke);
+            strokes.Add(NegativeXAxisSingleStroke);
             return strokes;
         }
 
@@ -183,10 +210,10 @@ namespace GraphPlotter.Services
                     double tanValue = amplitudeEnlargingFactorInternal * YAxisZoomFactor *
                     amplitudeEnlargingFactorExternal * Math.Tan(omega * X - Phi);
                     double D = Convert.ToDouble(verticalShift) * amplitudeEnlargingFactorInternal*YAxisZoomFactor;
-                    StylusPoint pointSin = new StylusPoint
+                    StylusPoint point = new StylusPoint
                         (centerX + i,
                         centerY - tanValue - D);
-                    stylusPointsCollection.Add(pointSin);
+                    stylusPointsCollection.Add(point);
                 }
                 Stroke SingleStroke = new Stroke(stylusPointsCollection);
                 SingleStroke.DrawingAttributes = new DrawingAttributes
@@ -411,35 +438,61 @@ namespace GraphPlotter.Services
         /// <param name="verticalShift">The value of D i.e the shift along the y axis</param>
         /// <param name="strokes">The colleciton of strokes which make up the wave</param>
         /// <returns>The collection of strokes which make up the SinC wave</returns>
-        public StrokeCollection PlotSinC(double graphWidth,
+        public StrokeCollection PlotSinC(double graphWidth,double graphHeight,
             double centerX, double centerY,
+            double XOffSet, double YOffSet,
             double XAxisZoomFactor, double YAxisZoomFactor,
-            double internalXAxisEnlargingFactorterY, double amplitudeEnlargingFactorInternal,
+            double internalXAxisScalingFactor, double amplitudeEnlargingFactorInternal,
             double amplitudeEnlargingFactorExternal, string timePeriod, string phaseShift, 
             string verticalShift,StrokeCollection strokes)
         {
             StylusPointCollection stylusPointsCollection = new StylusPointCollection();
-
-            for (double i = 0; i < graphWidth; i = i + 0.1)
+            //plotting the positive x axis
+            for (double j = graphWidth / 2 + 0.0001; j < graphWidth; j = j + 0.1)
             {
-                double X = (i - centerX) / (internalXAxisEnlargingFactorterY*XAxisZoomFactor);
-                double Phi = Convert.ToDouble(phaseShift) * (Math.PI);
-                double numenator = (amplitudeEnlargingFactorInternal * YAxisZoomFactor *
+                double X2 = ((j - graphWidth / 2) / (internalXAxisScalingFactor * XAxisZoomFactor)) + XOffSet * Math.PI;
+                double Phi2 = Convert.ToDouble(phaseShift) * (Math.PI);
+                double numenator2 = (amplitudeEnlargingFactorInternal * YAxisZoomFactor *
                     amplitudeEnlargingFactorExternal *
-                    Math.Sin(Math.PI * (X  - Phi) / Convert.ToDouble(timePeriod)));
-                double denominator = Math.PI * (X  - Phi) / Convert.ToDouble(timePeriod);
-                double sinCValue = numenator / denominator;
-                double D = Convert.ToDouble(verticalShift) * amplitudeEnlargingFactorInternal * YAxisZoomFactor;
+                    Math.Sin(Math.PI * (X2 - Phi2) / Convert.ToDouble(timePeriod)));
+                double denominator2 = Math.PI * (X2 - Phi2) / Convert.ToDouble(timePeriod);
+                double sinCValue2 = numenator2 / denominator2;
+                double D2 = Convert.ToDouble(verticalShift) * amplitudeEnlargingFactorInternal * YAxisZoomFactor;
+                double yOffSetForSine = YOffSet * amplitudeEnlargingFactorInternal * YAxisZoomFactor;
                 StylusPoint pointSin = new StylusPoint
-                    (i, centerY - sinCValue - D);
+                    (j, (graphHeight / 2) - sinCValue2 - D2 + yOffSetForSine);
                 stylusPointsCollection.Add(pointSin);
             }
-            Stroke SingleStroke = new Stroke(stylusPointsCollection);
-            SingleStroke.DrawingAttributes = new DrawingAttributes
+            Stroke PositiveXAxisSingleStroke = new Stroke(stylusPointsCollection);
+            PositiveXAxisSingleStroke.DrawingAttributes = new DrawingAttributes
             {
                 Color = Colors.Red,
             };
-            strokes.Add(SingleStroke);
+
+            //plotting the positive x axis
+            stylusPointsCollection = new StylusPointCollection();
+            for (double j = graphWidth / 2 - 0.0001; j > 0; j = j - 0.1)
+            {
+                double X2 = ((j - graphWidth / 2) / (internalXAxisScalingFactor * XAxisZoomFactor)) + XOffSet * Math.PI;
+                double Phi2 = Convert.ToDouble(phaseShift) * (Math.PI);
+                double numenator2 = (amplitudeEnlargingFactorInternal * YAxisZoomFactor *
+                    amplitudeEnlargingFactorExternal *
+                    Math.Sin(Math.PI * (X2 - Phi2) / Convert.ToDouble(timePeriod)));
+                double denominator2 = Math.PI * (X2 - Phi2) / Convert.ToDouble(timePeriod);
+                double sinCValue2 = numenator2 / denominator2;
+                double D2 = Convert.ToDouble(verticalShift) * amplitudeEnlargingFactorInternal * YAxisZoomFactor;
+                double yOffSetForSine = YOffSet * amplitudeEnlargingFactorInternal * YAxisZoomFactor;
+                StylusPoint pointSin = new StylusPoint
+                    (j, (graphHeight / 2) - sinCValue2 - D2 + yOffSetForSine);
+                stylusPointsCollection.Add(pointSin);
+            }
+            Stroke NegativeXAxisSingleStroke = new Stroke(stylusPointsCollection);
+            NegativeXAxisSingleStroke.DrawingAttributes = new DrawingAttributes
+            {
+                Color = Colors.Red,
+            };
+            strokes.Add(PositiveXAxisSingleStroke);
+            strokes.Add(NegativeXAxisSingleStroke);
             return strokes;
         }
         #endregion

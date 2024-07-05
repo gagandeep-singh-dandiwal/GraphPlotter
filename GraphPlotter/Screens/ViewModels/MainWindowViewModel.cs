@@ -374,17 +374,19 @@ namespace GraphPlotter.Screens.ViewModels
             {
                 selectedTrigoFunction = value;
                 Properties.Settings.Default.FunctionType = value;
-                if (!value.Equals(Sin))
+                if (!value.Equals(Sin) || !value.Equals(Cos)
+                    || !value.Equals(SinC))
                 {
-                    XOffset = 0.ToString();
-                    YOffset = 0.ToString();
-                    IsOffsetTextboxEnabled = false;
+                    //XOffset = 0.ToString();
+                    //YOffset = 0.ToString();
+                    //IsOffsetTextboxEnabled = false;
                 }
                 else
                 {
-                    IsOffsetTextboxEnabled = true;
+                    //IsOffsetTextboxEnabled = true;
                 }
                 PlotTrignometricFunctions(value);
+                OnPropertyChanged();
             }
         }
 
@@ -510,12 +512,14 @@ namespace GraphPlotter.Screens.ViewModels
             }
         }
 
-        private bool isOffsetTextboxEnabled;
+        private bool isOffsetTextboxEnabled = true;
 
         public bool IsOffsetTextboxEnabled
         {
             get { return isOffsetTextboxEnabled; }
-            set { isOffsetTextboxEnabled = value; OnPropertyChanged(); }
+            set 
+            {
+                isOffsetTextboxEnabled = value; OnPropertyChanged(); }
         }
 
         #endregion
@@ -606,7 +610,8 @@ namespace GraphPlotter.Screens.ViewModels
                     }
                     else if (function.ToString().ToLower().Equals(Cos))
                     {
-                        _plotTrignometricFunctionsService.PlotCos(GraphWidth, _defaultCenterXWPF, _defaultCenterYWPF,
+                        _plotTrignometricFunctionsService.PlotCos(GraphWidth,GraphHeight,_actualCenterXWPF, _actualCenterYWPF,
+                            Convert.ToDouble(XOffset), Convert.ToDouble(YOffset),
                             XAxisZoomFactor, YAxisZoomFactor, InternalXAxisScalingFactor,
                             AmplitudeEnlargingFactorInternal, Convert.ToDouble(AmplitudeEnlargingFactorExternal), TimePeriod, PhaseShift, VerticalShift, Strokes);
                     }
@@ -636,7 +641,9 @@ namespace GraphPlotter.Screens.ViewModels
                     }
                     else if (function.ToString().ToLower().Equals(SinC.ToLower()))
                     {
-                        _plotTrignometricFunctionsService.PlotSinC(GraphWidth, _defaultCenterXWPF, _defaultCenterYWPF,
+                        _plotTrignometricFunctionsService.PlotSinC(GraphWidth,GraphHeight,
+                            _actualCenterXWPF, _actualCenterYWPF,
+                            Convert.ToDouble(XOffset), Convert.ToDouble(YOffset),
                             XAxisZoomFactor, YAxisZoomFactor, InternalXAxisScalingFactor,
                             AmplitudeEnlargingFactorInternal, Convert.ToDouble(AmplitudeEnlargingFactorExternal), TimePeriod, PhaseShift, VerticalShift, Strokes);
                     }
@@ -821,7 +828,7 @@ namespace GraphPlotter.Screens.ViewModels
 
         private void ExecuteRestoreDefaultCommand(object obj)
         {
-            selectedTrigoFunction = Sin;
+            SelectedTrigoFunction = Sin;
             XAxisZoomFactor = 1;
             YAxisZoomFactor = 1;
             AmplitudeEnlargingFactorExternal = OnLoadAmplitudeEnlargingFactorExternal.ToString();

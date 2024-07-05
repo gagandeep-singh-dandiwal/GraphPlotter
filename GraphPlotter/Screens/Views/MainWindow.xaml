@@ -7,7 +7,7 @@
         xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
         xmlns:localBehaviour="clr-namespace:GraphPlotter.Common.Behaviours"
         mc:Ignorable="d"
-        Title="MainWindow" WindowStartupLocation="CenterScreen" WindowState="Maximized" MinHeight="300" MinWidth="300">
+        Title="Graph Plotter" WindowStartupLocation="CenterScreen" WindowState="Maximized" MinHeight="300" MinWidth="300">
     <Window.Resources>
         <Style x:Key="btnZoom" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
