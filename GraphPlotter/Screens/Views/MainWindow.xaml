@@ -113,16 +113,16 @@
                     <RowDefinition Height="30"/>
                     <!--Row 4 Vertical shift-->
                     <RowDefinition Height="30"/>
-                    <!--Row 5 Save As vector-->
+                    <!--Row 5 Center X-->
                     <RowDefinition Height="30"/>
-                    <!--Row 6 Reset zoom-->
+                    <!--Row 6 Center Y-->
                     <RowDefinition Height="30"/>
-                    <!--Row 7 Center x-->
-                    <RowDefinition Height="30"/>
-                    <!--Row 8 Center Y-->
-                    <RowDefinition Height="30"/>
+                    <!--Row 7 Reset Position -->
+                    <RowDefinition Height="Auto"/>
+                    <!--Row 8 Save as vector format-->
+                    <RowDefinition Height="Auto"/>
                     <!--Row 9 Reset Position -->
-                    <RowDefinition Height="30"/>
+                    <RowDefinition Height="Auto"/>
                     <!--Row 10 The gap row -->
                     <RowDefinition Height="*"/>
                     <!--Row 11 The vertical zoom in row-->
@@ -132,6 +132,7 @@
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
@@ -164,11 +165,14 @@
                Content="Period(T) :"/>
                 <TextBox Grid.Row="2" Grid.Column="1" 
                  Height="20" Width="100" 
-                 Text="{Binding TimePeriod, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                 Text="{Binding TimePeriod, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" 
+                         ToolTip="Time period in seconds, in multiples of pi"
+                         ToolTipService.InitialShowDelay="1">
                     <i:Interaction.Behaviors>
                         <localBehaviour:TextInputBehaviour/>
                     </i:Interaction.Behaviors>
                 </TextBox>
+                <TextBlock Grid.Row="2" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3" Text="π"></TextBlock>
 
                 <!--Row 3 - Phase Shift-->
                 <Label Grid.Row="3" Grid.Column="0" 
@@ -176,11 +180,15 @@
                Content="Phase Shift(Φ) :"/>
                 <TextBox Grid.Row="3" Grid.Column="1" 
                  Height="20" Width="100" 
-                 Text="{Binding PhaseShift, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+                 Text="{Binding PhaseShift, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                         ToolTip="Phase in multiples of pi"
+                         ToolTipService.InitialShowDelay="1">
                     <i:Interaction.Behaviors>
                         <localBehaviour:TextInputBehaviour/>
                     </i:Interaction.Behaviors>
                 </TextBox>
+                <TextBlock Grid.Row="3" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3" Text="π"></TextBlock>
+
 
                 <!--Row 4 - Vertical Shift-->
                 <Label Grid.Row="4" Grid.Column="0" 
@@ -194,52 +202,64 @@
                     </i:Interaction.Behaviors>
                 </TextBox>
                 
-                <!--Row 5 - Save to Svg format button-->
-                <Button Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2"
-                        Height="25"
+                <!--Row 5 - center x coordinate-->
+                <Label Grid.Row="5" Grid.Column="0" 
+                       Height="30" Width="100" 
+                       Content="Center X :"/>
+                <TextBox Grid.Row="5" Grid.Column="1"
+                        Height="20" Width="100"
+                        Text="{Binding XOffset,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                         IsEnabled="{Binding IsOffsetTextboxEnabled,Mode=TwoWay}"
+                         ToolTip="Type the x coordinate of the point as a multiple of pi, where you want to zoom in. Currently functional only with Sine"
+                         ToolTipService.InitialShowDelay="1">
+                    <i:Interaction.Behaviors>
+                        <localBehaviour:TextInputBehaviour/>
+                    </i:Interaction.Behaviors>
+                </TextBox>
+                <TextBlock Grid.Row="5" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="3" Text="π"></TextBlock>
+
+
+                <!--Row 6 - center y coordinate-->
+                <Label Grid.Row="6" Grid.Column="0" 
+                       Height="30" Width="100" 
+                       Content="Center Y :"/>
+                <TextBox Grid.Row="6" Grid.Column="1"
+                       Height="20" Width="100"
+                       Text="{Binding YOffset,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"
+                         IsEnabled="{Binding IsOffsetTextboxEnabled,Mode=TwoWay}"
+                         ToolTip="Type the y coordinate of the point where you want to zoom in. Currently functional only with Sine"
+                         ToolTipService.InitialShowDelay="1">
+                    <i:Interaction.Behaviors>
+                        <localBehaviour:TextInputBehaviour/>
+                    </i:Interaction.Behaviors>
+                </TextBox>
+
+
+                <!--Row 7 - Reset Position button-->
+                <Button Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2"
+                        Margin="5"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Height="25" Width="150"
+                        Command="{Binding ResetGraphPostionCommand}"
+                        Content="Reset Position"/>
+
+                <!--Row 8 - Save to Svg format button-->
+                <Button Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2"
+                        Margin="5"
+                        Height="25" Width="150"
                         HorizontalAlignment="Center" VerticalAlignment="Center"
                         Command="{Binding SaveToSVGFormatCommand}"
                         Content="Save as Vector Format"/>
 
-                <!--Row 6 - Reset Zoom button-->
-                <Button Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2"
-                        HorizontalAlignment="Center" VerticalAlignment="Center"
-                        Height="25"
-                        Width="80"
-                        Command="{Binding ResetZoomCommand}"
-                        Content="Reset Zoom"/>
-                
-                <!--Row 7 - center x coordinate-->
-                <Label Grid.Row="7" Grid.Column="0" 
-                       Height="30" Width="100" 
-                       Content="Center X :"/>
-                <TextBox Grid.Row="7" Grid.Column="1"
-                        Height="20" Width="100"
-                        Text="{Binding XOffset,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
-                    <i:Interaction.Behaviors>
-                        <localBehaviour:TextInputBehaviour/>
-                    </i:Interaction.Behaviors>
-                </TextBox>
-
-                <!--Row 8 - center y coordinate-->
-                <Label Grid.Row="8" Grid.Column="0" 
-                       Height="30" Width="100" 
-                       Content="Center Y :"/>
-                <TextBox Grid.Row="8" Grid.Column="1"
-                       Height="20" Width="100"
-                       Text="{Binding YOffset,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
-                    <i:Interaction.Behaviors>
-                        <localBehaviour:TextInputBehaviour/>
-                    </i:Interaction.Behaviors>
-                </TextBox>
-
-                <!--Row 9 - Reset Zoom button-->
+                <!--Row 9 - Restore setting to default button-->
                 <Button Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2"
+                        Margin="5"
+                        Height="25" Width="150"
+                        Background="Red"
+                        Foreground="White"
                         HorizontalAlignment="Center" VerticalAlignment="Center"
-                        Height="25" Width="80"
-                        Command="{Binding ResetGraphPostionCommand}"
-                        Content="Reset Position"/>
-
+                        Command="{Binding RestoreDefaultCommand}"
+                        Content="Restore to default"/>
                 <!--Row 10 has * height to make sure that the vertical zoom in and zoom out row is at bottom-->
                 
                 <!--Row 11 - Vertical Zoom in button-->
@@ -268,6 +288,14 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
+                <!--Row 6 - Reset Zoom button-->
+                <Button Grid.Row="0" Grid.Column="0"
+                        Margin="0,0,5,0"
+                        HorizontalAlignment="Right" VerticalAlignment="Top"
+                        Height="25"
+                        Width="80"
+                        Command="{Binding ResetZoomCommand}"
+                        Content="Reset Zoom"/>
                 <Button Grid.Row="0" Grid.Column="2"
                         Width="20"
                         Style="{StaticResource btnZoom}"

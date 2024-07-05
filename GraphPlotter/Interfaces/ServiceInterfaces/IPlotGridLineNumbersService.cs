@@ -12,10 +12,13 @@ namespace GraphPlotter.Interfaces.ServiceInterfaces
 
     {
         void AddXAxisNumber(double _centerX, double _centerY,
-            double GraphWidth, double GraphHeight, double XAxisZoomFactor,
+            double xOffset, double yOffset,
+            double GraphWidth, double GraphHeight, 
+            double XAxisZoomFactor, double yaxiszoomfactor,
             double InternalXAxisScalingFactor,ref ObservableCollection<Number> XAxisNumbers);
 
         void AddYAxisNumber(double _centerX, double _centerY,
+            double xOffset, double yOffset,
             double GraphWidth, double GraphHeight, double XAxisZoomFactor, double YAxisZoomFactor,
             double AmplitudeEnlargingFactorInternal, double InternalXAxisScalingFactor,ref ObservableCollection<Number> YAxisNumbers);
     }

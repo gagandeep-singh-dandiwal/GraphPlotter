@@ -15,7 +15,9 @@ namespace GraphPlotter.Services
         /// The method is used to add numbers on the X-Axis.
         /// </summary>
         public void AddXAxisNumber(double _actualCenterX, double _actualCenterY,
-            double GraphWidth, double GraphHeight, double XAxisZoomFactor,
+            double xOffset, double yOffset,
+            double GraphWidth, double GraphHeight, 
+            double XAxisZoomFactor, double yaxiszoomfactor,
             double InternalXAxisScalingFactor,ref ObservableCollection<Number> XAxisNumbers)
         {
             XAxisNumbers = new ObservableCollection<Number>();
@@ -26,17 +28,23 @@ namespace GraphPlotter.Services
                 Number number = new Number();
                 number.X = GraphWidth / 2 + (i * Math.PI * InternalXAxisScalingFactor);
                 number.Y = GraphHeight / 2;
-                number.Value = Math.Round(((GraphWidth / 2 - _actualCenterX) / (Math.PI*InternalXAxisScalingFactor) + i / (XAxisZoomFactor)), 4).ToString() + "π";
+                if (i == 0)
+                    number.Value = "(" + (Math.Round(xOffset + i / XAxisZoomFactor, 4)).ToString() + "π" + "," + (yOffset + i / yaxiszoomfactor)+")";
+                else
+                    number.Value = (Math.Round(xOffset + i / XAxisZoomFactor, 4)).ToString() + "π";
 
                 XAxisNumbers.Add(number);
             }
+
             //-ve x axis numbers
             for (int i = -1; i > -numberOfLines / 2 - 1; i--)
             {
                 Number number = new Number();
                 number.X = GraphWidth / 2 + (i * Math.PI * InternalXAxisScalingFactor);
-                number.Y = GraphHeight / 2;
-                number.Value = Math.Round(((GraphWidth / 2 - _actualCenterX) / (Math.PI * InternalXAxisScalingFactor) + i / (XAxisZoomFactor)), 4).ToString() + "π";
+                number.Y = GraphHeight / 2; 
+                number.Value = (Math.Round(xOffset + i / XAxisZoomFactor, 4)).ToString() + "π";
+
+                //number.Value = Math.Round(((GraphWidth / 2 - _actualCenterX) / (Math.PI * InternalXAxisScalingFactor * XAxisZoomFactor) + i / (XAxisZoomFactor)), 4).ToString() + "π";
 
                 XAxisNumbers.Add(number);
             }
@@ -46,6 +54,7 @@ namespace GraphPlotter.Services
         /// This method is used to add numbers on the Y-Axis.
         /// </summary>
         public void AddYAxisNumber(double _falseCenterX, double _falseCenterY,
+            double xOffset, double yOffset,
             double GraphWidth, double GraphHeight, double XAxisZoomFactor, double YAxisZoomFactor,
             double AmplitudeEnlargingFactorInternal, double InternalXAxisScalingFactor,ref ObservableCollection<Number> YAxisNumbers)
         {
@@ -60,8 +69,9 @@ namespace GraphPlotter.Services
                 }
                 number.X = GraphWidth/2;
                 number.Y = GraphHeight / 2 - (i * AmplitudeEnlargingFactorInternal);
-                number.Value = ((_falseCenterY-GraphHeight/2)/AmplitudeEnlargingFactorInternal+i/YAxisZoomFactor).ToString();
-                
+                number.Value = Convert.ToString(yOffset+i/YAxisZoomFactor);
+                //number.Value = ((_falseCenterY - GraphHeight / 2) / (AmplitudeEnlargingFactorInternal * YAxisZoomFactor) + i / YAxisZoomFactor).ToString();
+
                 YAxisNumbers.Add(number);
             }
             for (int i = -1; i > -numberOfLines / 2 - 1; i--)
@@ -69,7 +79,8 @@ namespace GraphPlotter.Services
                 Number number = new Number();
                 number.X = GraphWidth / 2;
                 number.Y = GraphHeight / 2 - (i * AmplitudeEnlargingFactorInternal);
-                number.Value = ((_falseCenterY - GraphHeight / 2) / AmplitudeEnlargingFactorInternal + i / YAxisZoomFactor).ToString();
+                number.Value = Convert.ToString(yOffset + i / YAxisZoomFactor);
+                //number.Value = ((_falseCenterY - GraphHeight / 2) / (AmplitudeEnlargingFactorInternal * YAxisZoomFactor) + i / YAxisZoomFactor).ToString();
                 YAxisNumbers.Add(number);
             }
         }

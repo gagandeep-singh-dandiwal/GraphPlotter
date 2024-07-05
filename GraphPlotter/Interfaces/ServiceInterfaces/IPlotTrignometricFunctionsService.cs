@@ -9,7 +9,7 @@ namespace GraphPlotter.ServicInterfaces.Interfaces
 {
     public interface IPlotTrignometricFunctionsService
     {
-        StrokeCollection PlotSine(double GraphWidth,
+        StrokeCollection PlotSine(double GraphWidth, double graphHeight,
             double CenterX, double CenterY, double XOffSet, double YOffSet, double XAxisZoomFactor, double YAxisZoomFactor,
             double InternalXAxisEnlargingFactor, double AmplitudeEnlargingFactorInternal,
             double AmplitudeEnlargingFactorExternal, string TimePeriod, string PhaseShift, 
@@ -17,36 +17,42 @@ namespace GraphPlotter.ServicInterfaces.Interfaces
 
         StrokeCollection PlotCos(double GraphWidth,
             double CenterX, double CenterY,
+            double XAxisZoomFactor, double YAxisZoomFactor,
             double InternalXAxisEnlargingFactor, double AmplitudeEnlargingFactorInternal,
             double AmplitudeEnlargingFactorExternal, string TimePeriod, string PhaseShift, 
             string VerticalShift, StrokeCollection Strokes);
 
         StrokeCollection PlotTan(double GraphWidth,
             double CenterX, double CenterY,
+            double XAxisZoomFactor, double YAxisZoomFactor,
             double InternalXAxisEnlargingFactor, double AmplitudeEnlargingFactorInternal,
             double AmplitudeEnlargingFactorExternal, string TimePeriod, string PhaseShift, 
             string VerticalShift,StrokeCollection Strokes);
 
         StrokeCollection PlotCosec(double GraphWidth,
             double CenterX, double CenterY,
+            double XAxisZoomFactor, double YAxisZoomFactor,
             double InternalXAxisEnlargingFactor, double AmplitudeEnlargingFactorInternal,
             double AmplitudeEnlargingFactorExternal, string TimePeriod, string PhaseShift, 
             string VerticalShift, StrokeCollection Strokes);
 
         StrokeCollection PlotSec(double GraphWidth,
             double CenterX, double CenterY,
+            double XAxisZoomFactor, double YAxisZoomFactor,
             double InternalXAxisEnlargingFactor, double AmplitudeEnlargingFactorInternal,
             double AmplitudeEnlargingFactorExternal, string TimePeriod, string PhaseShift, 
             string VerticalShift, StrokeCollection Strokes);
 
         StrokeCollection PlotCot(double GraphWidth,
             double CenterX, double CenterY,
+            double XAxisZoomFactor, double YAxisZoomFactor,
             double InternalXAxisEnlargingFactor, double AmplitudeEnlargingFactorInternal,
             double AmplitudeEnlargingFactorExternal, string TimePeriod, string PhaseShift, 
             string VerticalShift, StrokeCollection Strokes);
 
         StrokeCollection PlotSinC(double GraphWidth,
             double CenterX, double CenterY,
+            double XAxisZoomFactor, double YAxisZoomFactor,
             double InternalXAxisEnlargingFactor, double AmplitudeEnlargingFactorInternal,
             double AmplitudeEnlargingFactorExternal, string TimePeriod, string PhaseShift, 
             string VerticalShift, StrokeCollection Strokes);
